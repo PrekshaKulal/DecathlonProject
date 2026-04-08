@@ -33,9 +33,7 @@ if (!token) {
 
   try {
     const res = await axios.get("http://localhost:3001/get-cart", {
-  headers: {
-    Authorization: localStorage.getItem("token")
-  }
+  headers: { Authorization: `Bearer ${token}` }
 });
     let items = res.data.items || [];
   const existing = items.find(i => i.productId === product._id);
@@ -48,8 +46,8 @@ await axios.post(
   "http://localhost:3001/save-cart",
   { items },
   {
-    headers: {
-      Authorization: token
+        headers: {
+          Authorization: `Bearer ${token}`
     }
   }
 );
