@@ -19,7 +19,7 @@ const [products, setProducts] = useState([]);
 }, []);
     const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/my-orders", {
+      const res = await axios.get(`${process.env.API_URL}/my-orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(res.data);
@@ -30,7 +30,7 @@ const [products, setProducts] = useState([]);
 const fetchProducts = async () => {
     console.log("Fetching products...");
    try {
-      const res = await axios.get("http://localhost:3001/products/ordered", {
+      const res = await axios.get(`${process.env.API_URL}/products/ordered`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(res.data);
@@ -40,7 +40,7 @@ const fetchProducts = async () => {
 };
 const cancelOrder = async (id) => {
   try {
-    await axios.put( `http://localhost:3001/orders/cancel/${id}`,{},
+    await axios.put( `${process.env.API_URL}/orders/cancel/${id}`,{},
       {
         headers: { Authorization: `Bearer ${token}` }
       }
@@ -76,7 +76,7 @@ const cancelOrder = async (id) => {
       {ord.products.map((p, i) => (
         <div key={i} className="product-row">
           <img
-            src={`http://localhost:3001/uploads/${p.productId?.image}`}
+            src={`${process.env.API_URL}/uploads/${p.productId?.image}`}
             alt={p.productId?.productName}
             className="product-img"
           />

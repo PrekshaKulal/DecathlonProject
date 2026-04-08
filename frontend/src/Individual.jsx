@@ -14,7 +14,7 @@ function Individual() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/products/${id}`);
+        const res = await fetch(`${process.env.API_URL}/products/${id}`);
         const data = await res.json();
         console.log(data);
         setProduct(data);
@@ -32,7 +32,7 @@ if (!token) {
 }
 
   try {
-    const res = await axios.get("http://localhost:3001/get-cart", {
+    const res = await axios.get(`${process.env.API_URL}/get-cart`, {
   headers: { Authorization: `Bearer ${token}` }
 });
     let items = res.data.items || [];
@@ -43,7 +43,7 @@ if (!token) {
       items.push({ productId: product._id, quantity: 1 });
     }
 await axios.post(
-  "http://localhost:3001/save-cart",
+  `${process.env.API_URL}/save-cart`,
   { items },
   {
         headers: {

@@ -16,7 +16,7 @@ function Otp() {
 
   const sendOtp = async () => {
   try {
-    await axios.post("http://localhost:3001/send-otp", {
+    await axios.post(`${process.env.API_URL}/send-otp`, {
       email: email
     });
 
@@ -40,7 +40,7 @@ const verifyOtp = async () => {
 
   try {
 
-    const res = await axios.post("http://localhost:3001/verify-otp",{
+    const res = await axios.post(`${process.env.API_URL}/verify-otp`,{
       otp: enteredOtp,
       email: email,
       type: type

@@ -13,11 +13,11 @@ function AdminOrders() {
     setOrders(res.data);
   };
   const updateStatus = async (id, status) => {
-    await axios.put(`http://localhost:3001/admin/orders/${id}`, { status });
+    await axios.put(`${process.env.API_URL}/admin/orders/${id}`, { status });
     fetchOrders(); 
   };
   const deleteOrder = async (id) => {
-    await axios.delete(`http://localhost:3001/admin/orders/${id}`);
+    await axios.delete(`${process.env.API_URL}/admin/orders/${id}`);
     fetchOrders();
   };
   const navigate = useNavigate();

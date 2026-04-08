@@ -5,7 +5,7 @@ function View_Users() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/users")
+    axios.get(`${process.env.API_URL}/users`)
       .then(res => setUsers(res.data));
   }, []);
 

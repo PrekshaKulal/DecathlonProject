@@ -11,7 +11,7 @@ function Homepage(){
  
 
 useEffect(() => {
-  axios.get("http://localhost:3001/GetProducts")
+  axios.get(`${process.env.API_URL}/GetProducts`)
   .then(res => setProducts(res.data))
   .catch(err => console.log(err));}, []);
     return(
@@ -93,7 +93,7 @@ useEffect(() => {
 
 {products.map((product) => (
 <Link to={`/individual/${product._id}`} className='eachcard' key={product._id}>
-<img src={`http://localhost:3001/uploads/${product.image}`} alt={product.productName} />
+<img src={`${process.env.API_URL}/uploads/${product.image}`} alt={product.productName} />
 <p className='bigcardtext'>{product.productName}</p>
 <h3 className='smalltext'>MRP Rs {product.productPrice}</h3>
 

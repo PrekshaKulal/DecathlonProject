@@ -14,7 +14,7 @@ function Login() {
     return;
   }
  try {
-    const res = await axios.post("http://localhost:3001/check-user", {
+    const res = await axios.post(`${process.env.API_URL}/check-user`, {
       email: email
     });
     console.log(res.data);  

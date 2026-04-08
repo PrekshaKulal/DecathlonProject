@@ -23,9 +23,7 @@ function Address(){
         formData.append("City", address.City);
         formData.append("District", address.District);*/
         try {
-await axios.post(
-  "http://localhost:3001/add-address",
-  form,  
+await axios.post(`${process.env.API_URL}/add-address`,form,  
   {
       headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`  
