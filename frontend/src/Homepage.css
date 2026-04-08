@@ -1,0 +1,73 @@
+.homecards{
+    display: flex;
+    flex-wrap: wrap;  
+    gap: 20px;       
+    justify-content: center;  
+    padding: 10px 10px;  
+    margin-top: 70px;    
+    margin-bottom: 0;     
+}
+
+
+.eachcard{
+    flex:1;
+    width: 50px;
+    text-align: center;
+    cursor: pointer;
+    gap:20px;
+}
+
+.eachcard img{
+    width: 75%;
+    border-radius: 8px;
+}
+
+.bigcards-container{
+    display: flex;
+    flex-wrap: wrap;  
+    gap: 20px;       
+    justify-content: center;  
+    padding: 10px 10px;
+   
+    
+}
+.eachbigcard{
+    flex:1;
+    width: 50px;
+    text-align: center;
+    cursor: pointer;
+    gap:5px;
+    border:whitesmoke solid 1px;  
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    
+}
+.eachbigcard img{
+    width: 70%;
+    border-radius: 8px;
+}
+.bigcardtext{
+    font-size: 18px;
+    font-weight: normal;
+    margin-top: 10px;
+    color:black;
+}
+.smalltext{
+    font-size: 16px;
+    font-weight: normal;
+    margin-top: 5px;
+    color:black;
+    text-align: center;
+}
+.bigcardbtn{
+    background-color:   transparent;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    border-radius: 0px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+

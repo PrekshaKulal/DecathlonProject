@@ -1,0 +1,23 @@
+.addcontainer {
+  display: flex;
+  
+  align-items: center;
+  margin-top: 60px;
+  width:500px;
+  height: auto;
+  padding: 20px;
+  color:white;
+    background: rgb(61, 134, 211);
+}
+.address input {
+  width: 50%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.add-address {
+    width:100%;
+    background:blue;
+    color:white;
+}
