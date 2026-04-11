@@ -1,13 +1,13 @@
 import React from 'react';
 import "./Homepage.css";
-import { FaBars, FaSearch, FaRegUser, FaStore, FaRegCommentDots, FaRegHeart, FaShoppingCart, FaMapMarkerAlt } from "react-icons/fa";
+/*import { FaBars, FaSearch, FaRegUser, FaStore, FaRegCommentDots, FaRegHeart, FaShoppingCart, FaMapMarkerAlt } from "react-icons/fa";*/
 import "./Navbar.css";
 import { Carousal } from './Carousal';
 import { slides } from "./data/Data";
 function Home(){
     return(
         <>
-        <div className="navbar">
+      {/*  <div className="navbar">
               <div className="nav-left">
                 <FaBars className="menu-icon" />
                 <span className="all-sports">ALL<br/>SPORTS</span>
@@ -164,7 +164,7 @@ function Home(){
                 <button className='bigcardbtn'>Add to Cart</button>
             </div>
             </div>
-        
+     */}   
     </>
     );
    

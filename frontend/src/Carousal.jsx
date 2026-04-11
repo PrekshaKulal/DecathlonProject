@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from "react";
 import "./Carousal.css";
-import { BsArrowLeftCircleFill,BsArrowRightCircleFill } from "react-icons/bs";
+/*import { BsArrowLeftCircleFill,BsArrowRightCircleFill } from "react-icons/bs";*/
 
 
 export const Carousal=({data})=>{
@@ -25,11 +25,11 @@ export const Carousal=({data})=>{
 }, [data.length]);
 
     return <div className="carousal-container">
-        <BsArrowLeftCircleFill className="arrow left-arrow" onClick={prevSlide}/>
+        {/* <BsArrowLeftCircleFill className="arrow left-arrow" onClick={prevSlide}/> */}
         {data.map((item, index) => (
             <img key={index} src={item.src} alt={item.alt} className={index === slide ? "slide" : "slide slide-hidden"} />
         ))}
-        <BsArrowRightCircleFill className="arrow right-arrow" onClick={nextSlide}/>
+        {/* <BsArrowRightCircleFill className="arrow right-arrow" onClick={nextSlide}/> */}
         <span className="indicator">
             {data.map((_, index) => (
                 <button key={index} onClick={() => setSlide(index)} className={index === slide ? "indicate-btn" : "indicate-btn indicate-btn-inactive"}></button>
