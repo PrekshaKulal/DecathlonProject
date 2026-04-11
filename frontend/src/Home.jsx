@@ -1,6 +1,6 @@
 import React from 'react';
 import "./Homepage.css";
-import { FaBars, FaSearch, FaRegUser, FaStore, FaRegCommentDots, FaRegHeart, FaShoppingCart, FaMapMarkerAlt } from "react-icons";
+import { FaBars, FaSearch, FaRegUser, FaStore, FaRegCommentDots, FaRegHeart, FaShoppingCart, FaMapMarkerAlt } from "react-icons/fa";
 import "./Navbar.css";
 import { Carousal } from './Carousal';
 import { slides } from "./data/Data";
