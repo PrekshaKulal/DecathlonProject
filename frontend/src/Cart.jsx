@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect,useState } from "react";
-import "./cart.css";
+import "./Cart.css";
 import "./Manage_Products.css";
 import { useNavigate } from "react-router-dom";
 
