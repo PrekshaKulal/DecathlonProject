@@ -38,7 +38,7 @@ function Login() {
       </header>
       <div className="loginpage">
     <h2>Login</h2>
-    <button className="admin-login-btn" onClick={() => navigate("/admin-login")}>Admin Login</button>
+    <button className="admin-login-btn"  style={{color:'black', background:'lightgray'}} onClick={() => navigate("/admin-login")}>Admin Login</button>
 <form onSubmit={handleSubmit}>
           <div className="main">
             <span className={showEmail ? "active" : ""} onClick={() => setShowEmail(true)} > E-mail</span>
