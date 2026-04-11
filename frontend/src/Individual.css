@@ -59,7 +59,6 @@ body {
 
 .add-to-cart-btn {
     position: fixed;
-
     left: 50%;
     transform: translateX(-50%);
     width: 90%;

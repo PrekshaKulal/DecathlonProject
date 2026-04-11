@@ -9,15 +9,15 @@ function AdminOrders() {
     fetchOrders();
   }, []);
  const fetchOrders = async () => {
-    const res = await axios.get("http://localhost:3001/admin/orders");
+    const res = await axios.get(`${import.meta.env.API_URL}/admin/orders`);
     setOrders(res.data);
   };
   const updateStatus = async (id, status) => {
-    await axios.put(`${process.env.API_URL}/admin/orders/${id}`, { status });
+    await axios.put(`${import.meta.env.API_URL}/admin/orders/${id}`, { status });
     fetchOrders(); 
   };
   const deleteOrder = async (id) => {
-    await axios.delete(`${process.env.API_URL}/admin/orders/${id}`);
+    await axios.delete(`${import.meta.env.API_URL}/admin/orders/${id}`);
     fetchOrders();
   };
   const navigate = useNavigate();

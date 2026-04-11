@@ -17,7 +17,7 @@ const Add_Product = () => {
 
    useEffect(()=>{
  if(id){
-  axios.get(`${process.env.API_URL}/products/${id}`)
+  axios.get(`${import.meta.env.API_URL}/products/${id}`)
   .then(res=>{
     setProductName(res.data.productName)
     setProductPrice(res.data.productPrice)
@@ -48,7 +48,7 @@ const Add_Product = () => {
   formData.append("image", image);
   
 if(id){
-  axios.put(`${process.env.API_URL}/products/${id}`,formData)
+  axios.put(`${import.meta.env.API_URL}/products/${id}`,formData)
   .then(res=>{
     alert("Product Updated Successfully")
     navigate("/manage")
@@ -56,7 +56,7 @@ if(id){
   .catch(err=>console.log(err));
 }else{
     
-  axios.post(`${process.env.API_URL}/products`, formData)
+  axios.post(`${import.meta.env.API_URL}/products`, formData)
     .then(res=>{
       alert("Product Added Successfully")
      setProductName("");

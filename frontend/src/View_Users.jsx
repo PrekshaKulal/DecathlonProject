@@ -5,7 +5,7 @@ function View_Users() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    axios.get(`${process.env.API_URL}/users`)
+    axios.get(`${import.meta.env.API_URL}/users`)
       .then(res => setUsers(res.data));
   }, []);
 

@@ -16,7 +16,7 @@ function Addresses() {
   }, [token]);
   const fetchAddresses = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/get-addresses", {
+      const res = await axios.get(`${import.meta.env.API_URL}/get-addresses`, {
         headers: { Authorization: token }
       });
       setAddresses(res.data);
@@ -33,16 +33,16 @@ const placeOrder = async () => {
     return;
   }
   try {
-    const cartRes = await axios.get("http://localhost:3001/get-cart", {
+    const cartRes = await axios.get(`${import.meta.env.API_URL}/get-cart`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const items = cartRes.data.items;
     let totalAmount = 0;
     for (let item of items) {
-      const productRes = await axios.get(`http://localhost:3001/products/${item.productId}`);
+      const productRes = await axios.get(`${import.meta.env.API_URL}/products/${item.productId}`);
       totalAmount += productRes.data.productPrice * item.quantity;
     }
-    await axios.post("http://localhost:3001/orders",{
+    await axios.post(`${import.meta.env.API_URL}/orders`,{
         products: items,
         totalAmount,
         addressId: selected

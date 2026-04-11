@@ -9,7 +9,7 @@ function Manage_Products(){
     
 
     useEffect(() => { 
-      axios.get(`${process.env.API_URL}/GetProducts`)
+      axios.get(`${import.meta.env.API_URL}/GetProducts`)
         .then(res => setProducts(res.data))
         .catch(err => console.log(err));
     }, []);
@@ -21,7 +21,7 @@ function Manage_Products(){
 }
 
     const handleDelete = async(id) => {
-        axios.delete(`${process.env.API_URL}/products/${id}`)
+        axios.delete(`${import.meta.env.API_URL}/products/${id}`)
           .then(res => {
            setProducts(products.filter(product=>product._id!=id));
           })
@@ -79,7 +79,7 @@ function Manage_Products(){
                         <td>Rs {product.productPrice.toFixed(2)}</td>
                         <td>{product.productCategory}</td>
                         <td>{product.productDescription}</td>
-                        <td><img src={`${process.env.API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image" /></td>
+                        <td><img src={`${import.meta.env.API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image" /></td>
                        <td><div className='action-buttons'><button className="edit" onClick={()=>handleEdit(product._id)}>Edit</button >
                         <button className="delete" onClick={()=> { handleDelete(product._id) } }>Delete</button></div></td>
                       </tr>
