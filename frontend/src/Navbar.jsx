@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Category from "./Category";
 import {useState,useEffect} from "react";
 
-import {FaBars,FaSearch,FaRegUser,FaStore,FaRegCommentDots,FaRegHeart,FaShoppingCart,FaMapMarkerAlt} from "react-icons/fa";
+import {FaBars,FaSearch,FaRegUser,FaStore,FaRegCommentDots,FaRegHeart,FaShoppingCart,FaMapMarkerAlt} from "react-icons";
 
 
 function Navbar() {
