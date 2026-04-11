@@ -19,14 +19,14 @@ if (!token) {
   return;
 }
     try {
-      const res = await axios.get(`${import.meta.env.API_URL}/get-cart`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/get-cart`, {
   headers: {
     Authorization: token
   }
 });
       const cartItems = res.data.items;
       const productIds = cartItems.map(item => item.productId);
-      const productsRes = await axios.post( `${import.meta.env.API_URL}/get-cart-items`,{ productIds });
+      const productsRes = await axios.post( `${import.meta.env.VITE_API_URL}/get-cart-items`,{ productIds });
       setProducts(productsRes.data);
       let qtyMap = {};
       cartItems.forEach(item => {
@@ -52,7 +52,7 @@ if (!token) {
     }));
 
   await axios.post(
-  `${import.meta.env.API_URL}/save-cart`,
+  `${import.meta.env.VITE_API_URL}/save-cart`,
   { items: updatedItems },
   {
     headers: {
@@ -77,7 +77,7 @@ const placeOrder = async () => {
   }));
 
   try {
-  const res = await fetch(`${import.meta.env.API_URL}/orders`, {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/orders`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -91,7 +91,7 @@ const placeOrder = async () => {
     const data = await res.json();
     alert("Order placed successfully");
     await axios.post(
-  `${import.meta.env.API_URL}/save-cart`,
+  `${import.meta.env.VITE_API_URL}/save-cart`,
   { items: [] },
   {
     headers: {
@@ -135,7 +135,7 @@ const placeOrder = async () => {
                      
                       
                       <tr key={product._id}>
-                        <td><img src={`${import.meta.env.API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image" /><br/>{product.productName}</td>
+                        <td><img src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image" /><br/>{product.productName}</td>
                         <td>Rs {product.productPrice.toFixed(2)}</td>
                         <td><input type="number" min="1"  value={count[product._id] || 1} onChange={(e) => {const newQty = Number(e.target.value);
  const updatedCount = { ...count, [product._id]: newQty };
@@ -147,7 +147,7 @@ const placeOrder = async () => {
   }));
 
   axios.post(
-  `${import.meta.env.API_URL}/save-cart`,
+  `${import.meta.env.VITE_API_URL}/save-cart`,
   { items },
   {
     headers: {

@@ -14,7 +14,7 @@ function Login() {
     return;
   }
  try {
-    const res = await axios.post(`${import.meta.env.API_URL}/check-user`, {
+    const res = await axios.post(`${import.meta.env.VITE_API_URL}/check-user`, {
       email: email
     });
     console.log(res.data);  

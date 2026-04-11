@@ -14,7 +14,7 @@ function Individual() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${import.meta.env.API_URL}/products/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`);
         const data = await res.json();
         console.log(data);
         setProduct(data);
@@ -32,7 +32,7 @@ if (!token) {
 }
 
   try {
-    const res = await axios.get(`${import.meta.env.API_URL}/get-cart`, {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/get-cart`, {
   headers: { Authorization: `Bearer ${token}` }
 });
     let items = res.data.items || [];
@@ -43,7 +43,7 @@ if (!token) {
       items.push({ productId: product._id, quantity: 1 });
     }
 await axios.post(
-  `${import.meta.env.API_URL}/save-cart`,
+  `${import.meta.env.VITE_API_URL}/save-cart`,
   { items },
   {
         headers: {
@@ -80,7 +80,7 @@ await axios.post(
  <div className="product-details">
 
   <div className="product-image-container">
-    <img src={`${import.meta.env.API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image"/>
+    <img src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image"/>
   
 </div>
   <div className="product-content">
