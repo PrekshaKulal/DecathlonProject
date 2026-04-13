@@ -5,7 +5,7 @@ const multer=require('multer');
 const app = express();
 app.use(express.json());
 app.use(cors());
-const nodemailer = require("nodemailer");
+//const nodemailer = require("nodemailer");
 app.use('/uploads', express.static('uploads'));
 const UserModel  = require('./models/Users');
 const ProductModel=require('./models/Product');
@@ -17,6 +17,8 @@ const path=require("path")
 const jwt = require("jsonwebtoken");
 const dns = require("dns");
 require('dotenv').config();
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 
@@ -55,15 +57,29 @@ const authMiddleware = (req, res, next) => {
 
 
 let otpStore = {};
-const transporter = nodemailer.createTransport({
+{/*const transporter = nodemailer.createTransport({
   service: "gmail",
  auth: {
   user: process.env.EMAIL_USER,
   pass: process.env.EMAIL_PASS
 }
-});
+});*/}
 
+const sendOtpEmail = async (email, otp) => {
+  try {
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,   // ✅ user email
+      subject: 'Your OTP Code',
+      html: `<h2>Your OTP is: ${otp}</h2>`
+    });
 
+    console.log("Email sent to:", email);
+  } catch (error) {
+    console.log("Resend error:", error);
+    throw error;
+  }
+};
 
 app.post("/send-otp", async (req, res) => {
    const { email } = req.body;
@@ -73,19 +89,18 @@ app.post("/send-otp", async (req, res) => {
 const otp = Math.floor(100000 + Math.random() * 900000).toString();
 otpStore[email] = otp;
 console.log("Generated OTP:", otp); 
-const mailOptions = {
+{/*const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Otp",
     text: `Your OTP is ${otp}`
-  };
+  };*/}
 try {
- await transporter.sendMail(mailOptions);
+  await sendOtpEmail(email, otp);
   res.json({ success: true });
 } catch (error) {
- console.log(error);
- res.status(500).json({ error: "Email failed" });
- }
+  res.status(500).json({ error: "Email failed" });
+}
 });
 
 app.post("/verify-otp", async (req, res) => {
