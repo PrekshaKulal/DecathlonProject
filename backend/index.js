@@ -86,29 +86,30 @@ app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
 
   try {
-    const user = await UserModel.findOne({ email });
-
-    if (!user) {
-      return res.json({ status: "User not found" });
+    if (!email) {
+      return res.status(400).json({ error: "Email required" });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000);
-    otpStore[email] = { otp };
+
+    otpStore[email] = otp;
 
     console.log("OTP:", otp);
 
-    await resend.emails.send({
-      from: "onboarding@resend.dev", 
+    const response = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: email,
       subject: "Your OTP",
       html: `<h2>Your OTP is: ${otp}</h2>`,
     });
 
-    res.json({ status: "OTP_SENT", email });
+    console.log("EMAIL SENT:", response);
+
+    res.json({ success: true });
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ status: "Server Error" });
+    console.log("EMAIL ERROR:", err);
+    res.status(500).json({ error: "OTP send failed" });
   }
 });
 
