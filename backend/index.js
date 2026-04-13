@@ -67,20 +67,21 @@ let otpStore = {};
 
 const sendOtpEmail = async (email, otp) => {
   try {
+    console.log("Sending OTP to:", email);
+    console.log("OTP:", otp);
+
     const response = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: email,
+      to: 'preksha.kulal916@gmail.com', // ok for testing
       subject: 'Your OTP Code',
       html: `<h2>Your OTP is: ${otp}</h2>`
     });
 
-    console.log("EMAIL RESPONSE:", response); // 👈 ADD THIS
+    console.log("EMAIL RESPONSE:", response);
   } catch (error) {
-    console.log("FULL ERROR:", error); // 👈 VERY IMPORTANT
-    throw error;
+    console.log("FULL ERROR:", error);
   }
 };
-
 app.post("/send-otp", async (req, res) => {
    const { email } = req.body;
  if (!email) {
@@ -187,14 +188,14 @@ app.delete('/products/:id', async (req, res) => {       //delete product api
       
     }
 });
-app.get('/products/:id', async (req,res)=>{                 //get data via id api
-  try{
-    const product = await ProductModel.findById(req.params.id)
-    res.json(product)
-  }catch(err){
-    res.json(err)
+app.get("/products/:id", async (req, res) => {
+  try {
+    const product = await ProductModel.findById(req.params.id);
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: "Fetching products failed" });
   }
-})
+});
 app.put('/products/:id', upload.single('image'), async (req, res) => {
   try {
     const updatedProduct = {
@@ -235,7 +236,7 @@ app.post("/check-user", async (req,res)=>{
 
 })
 
-app.post('/login', (req, res) => {
+{/*app.post('/login', (req, res) => {
     const {email,password} = req.body;
     UserModel.findOne({email:email})                //login api
     .then(user=>{
@@ -262,8 +263,8 @@ app.post('/register', (req, res) => {           //register api
     UserModel.create(req.body)
     .then(users => res.json(users))
     .catch(err => res.json(err));
-});
-*/
+});*/}
+
 
 app.post("/add-address", authMiddleware, async (req, res) => {
   try {
@@ -445,14 +446,14 @@ app.get("/products/ordered", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Fetching ordered products failed" });
   }
 });
-app.get("/products/:id", authMiddleware, async (req, res) => {
+{/*app.get("/products/:id", authMiddleware, async (req, res) => {
   try {
     const product = await ProductModel.findById(req.params.id);
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: "Fetching products failed" });
   }
-});
+});*/}
 app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   try {
     await OrderModel.findByIdAndUpdate(req.params.id, {
