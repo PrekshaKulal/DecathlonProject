@@ -65,7 +65,7 @@ let otpStore = {};
 }
 });*/}
 
-const sendOtpEmail = async (email, otp) => {
+/*const sendOtpEmail = async (email, otp) => {
   try {
     console.log("Sending OTP to:", email);
     console.log("OTP:", otp);
@@ -81,27 +81,37 @@ const sendOtpEmail = async (email, otp) => {
   } catch (error) {
     console.log("FULL ERROR:", error);
   }
-};
+};*/
+
+
 app.post("/send-otp", async (req, res) => {
-   const { email } = req.body;
- if (!email) {
-    return res.status(400).json({ error: "Email required" });
+  const { email, password } = req.body;
+
+  try {
+    const user = await userModel.findOne({ email, password });
+
+    if (!user) {
+      return res.json({ status: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    otpStore[email] = { otp };
+
+    console.log("OTP:", otp);
+
+    await resend.emails.send({
+      from: "onboarding@resend.dev", 
+      to: email,
+      subject: "Your OTP",
+      html: `<h2>Your OTP is: ${otp}</h2>`,
+    });
+
+    res.json({ status: "OTP_SENT", email });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "Server Error" });
   }
-const otp = Math.floor(100000 + Math.random() * 900000).toString();
-otpStore[email] = otp;
-console.log("Generated OTP:", otp); 
-{/*const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Otp",
-    text: `Your OTP is ${otp}`
-  };*/}
-try {
-  await sendOtpEmail(email, otp);
-  res.json({ success: true });
-} catch (error) {
-  res.status(500).json({ error: "Email failed" });
-}
 });
 
 app.post("/verify-otp", async (req, res) => {
