@@ -72,7 +72,7 @@ const sendOtpEmail = async (email, otp) => {
 
     const response = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'preksha.kulal916@gmail.com', // ok for testing
+      to: 'decathlon.1903@gmail.com', // ok for testing
       subject: 'Your OTP Code',
       html: `<h2>Your OTP is: ${otp}</h2>`
     });
