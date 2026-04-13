@@ -235,7 +235,7 @@ app.post("/check-user", async (req,res)=>{
 
 })
 
-/*app.post('/login', (req, res) => {
+app.post('/login', (req, res) => {
     const {email,password} = req.body;
     UserModel.findOne({email:email})                //login api
     .then(user=>{
