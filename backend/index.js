@@ -67,16 +67,16 @@ let otpStore = {};
 
 const sendOtpEmail = async (email, otp) => {
   try {
-    await resend.emails.send({
+    const response = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: email,   // ✅ user email
+      to: email,
       subject: 'Your OTP Code',
       html: `<h2>Your OTP is: ${otp}</h2>`
     });
 
-    console.log("Email sent to:", email);
+    console.log("EMAIL RESPONSE:", response); // 👈 ADD THIS
   } catch (error) {
-    console.log("Resend error:", error);
+    console.log("FULL ERROR:", error); // 👈 VERY IMPORTANT
     throw error;
   }
 };
