@@ -67,28 +67,26 @@ let otpStore = {};
 
 /*const sendOtpEmail = async (email, otp) => {
   try {
-    console.log("Sending OTP to:", email);
-    console.log("OTP:", otp);
-
     const response = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'decathlon.1903@gmail.com', // ok for testing
+      to: 'preksha.kulal916@gmail.com',
       subject: 'Your OTP Code',
       html: `<h2>Your OTP is: ${otp}</h2>`
     });
 
-    console.log("EMAIL RESPONSE:", response);
+    console.log("EMAIL RESPONSE:", response); // 👈 ADD THIS
   } catch (error) {
-    console.log("FULL ERROR:", error);
+    console.log("FULL ERROR:", error); // 👈 VERY IMPORTANT
+    throw error;
   }
 };*/
 
 
 app.post("/send-otp", async (req, res) => {
-  const { email, password } = req.body;
+  const { email } = req.body;
 
   try {
-    const user = await userModel.findOne({ email, password });
+    const user = await UserModel.findOne({ email });
 
     if (!user) {
       return res.json({ status: "User not found" });
@@ -113,6 +111,28 @@ app.post("/send-otp", async (req, res) => {
     res.status(500).json({ status: "Server Error" });
   }
 });
+
+{/*app.post("/send-otp", async (req, res) => {
+   const { email } = req.body;
+ if (!email) {
+    return res.status(400).json({ error: "Email required" });
+  }
+const otp = Math.floor(100000 + Math.random() * 900000).toString();
+otpStore[email] = otp;
+console.log("Generated OTP:", otp); 
+const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Otp",
+    text: `Your OTP is ${otp}`
+  };
+try {
+  await sendOtpEmail(email, otp);
+  res.json({ success: true });
+} catch (error) {
+  res.status(500).json({ error: "Email failed" });
+}
+});*/}
 
 app.post("/verify-otp", async (req, res) => {
   const { otp, email, type } = req.body;
