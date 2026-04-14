@@ -19,14 +19,25 @@ if (!token) {
   return;
 }
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/get-cart`, {
-  headers: {
-    Authorization: token
+      const res = await axios.get(
+  `${import.meta.env.VITE_API_URL}/get-cart`,
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
   }
-});
+);
       const cartItems = res.data.items;
       const productIds = cartItems.map(item => item.productId);
-      const productsRes = await axios.post( `${import.meta.env.VITE_API_URL}/get-cart-items`,{ productIds });
+      const productsRes = await axios.post(
+  `${import.meta.env.VITE_API_URL}/get-cart-items`,
+  { productIds },
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+  }
+);
       setProducts(productsRes.data);
       let qtyMap = {};
       cartItems.forEach(item => {
@@ -51,12 +62,12 @@ if (!token) {
       quantity: count[pid]
     }));
 
-  await axios.post(
+ axios.post(
   `${import.meta.env.VITE_API_URL}/save-cart`,
-  { items: updatedItems },
+  { items },
   {
     headers: {
-      Authorization: localStorage.getItem("token")
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     }
   }
 );

@@ -5,7 +5,7 @@ const multer=require('multer');
 const app = express();
 app.use(express.json());
 app.use(cors());
-//const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 app.use('/uploads', express.static('uploads'));
 const UserModel  = require('./models/Users');
 const ProductModel=require('./models/Product');
@@ -17,8 +17,12 @@ const path=require("path")
 const jwt = require("jsonwebtoken");
 const dns = require("dns");
 require('dotenv').config();
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const Razorpay = require("razorpay");
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 
@@ -32,16 +36,13 @@ mongoose.connect(process.env.MONGO_URI)
 
 const authMiddleware = (req, res, next) => {
   let token = req.headers.authorization;
-
-  if (!token) return res.status(401).json({ error: "No token" });
-
+  if (!token)
+     return res.status(401).json({ error: "No token" });
   if (token.startsWith("Bearer ")) {
     token = token.split(" ")[1];
   }
-
   try {
     const decoded =jwt.verify(token, process.env.JWT_SECRET)
-
     if (!decoded || !decoded.id) {
       return res.status(401).json({ error: "Invalid token data" });
     }
@@ -52,68 +53,16 @@ const authMiddleware = (req, res, next) => {
     res.status(401).json({ error: "Invalid token" });
   }
 };
-
-
-
-
 let otpStore = {};
-{/*const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   service: "gmail",
  auth: {
   user: process.env.EMAIL_USER,
   pass: process.env.EMAIL_PASS
 }
-});*/}
-
-/*const sendOtpEmail = async (email, otp) => {
-  try {
-    const response = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'preksha.kulal916@gmail.com',
-      subject: 'Your OTP Code',
-      html: `<h2>Your OTP is: ${otp}</h2>`
-    });
-
-    console.log("EMAIL RESPONSE:", response); // 👈 ADD THIS
-  } catch (error) {
-    console.log("FULL ERROR:", error); // 👈 VERY IMPORTANT
-    throw error;
-  }
-};*/
-
-
-app.post("/send-otp", async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    if (!email) {
-      return res.status(400).json({ error: "Email required" });
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000);
-
-    otpStore[email] = otp;
-
-    console.log("OTP:", otp);
-
-    const response = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: email,
-      subject: "Your OTP",
-      html: `<h2>Your OTP is: ${otp}</h2>`,
-    });
-
-    console.log("EMAIL SENT:", response);
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.log("EMAIL ERROR:", err);
-    res.status(500).json({ error: "OTP send failed" });
-  }
 });
 
-{/*app.post("/send-otp", async (req, res) => {
+app.post("/send-otp", async (req, res) => {
    const { email } = req.body;
  if (!email) {
     return res.status(400).json({ error: "Email required" });
@@ -128,33 +77,29 @@ const mailOptions = {
     text: `Your OTP is ${otp}`
   };
 try {
-  await sendOtpEmail(email, otp);
+ await transporter.sendMail(mailOptions);
   res.json({ success: true });
 } catch (error) {
-  res.status(500).json({ error: "Email failed" });
-}
-});*/}
+ console.log(error);
+ res.status(500).json({ error: "Email failed" });
+ }
+});
 
 app.post("/verify-otp", async (req, res) => {
   const { otp, email, type } = req.body;
-
   if (!otpStore[email]) {
     return res.json({ success: false, message: "OTP expired" });
   }
-
   if (String(otpStore[email]) !== String(otp)) {
     return res.json({ success: false, message: "Invalid OTP" });
   }
-
   delete otpStore[email];
-
   try {
     let user = await UserModel.findOne({ email });
     if (type === "register") {
       if (user) {
         return res.json({ success: false, message: "User already exists" });
       }
-
       user = new UserModel({ email });
       await user.save();
     }
@@ -164,15 +109,28 @@ app.post("/verify-otp", async (req, res) => {
       }
     }
     const token =jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
     return res.json({ success: true, token });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Database error" });
   }
 });
-
+const sendOrderEmail = async (email, status, orderId) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: `Order Update: ${status}`,
+      html: `
+        <h2>Order Update</h2>
+        <p>Your order <b>${orderId}</b> status is now:</p>
+        <h3>${status}</h3>
+        <p>Thank you for shopping with us.</p>   `
+    });
+  } catch (err) {
+    console.log("Email error:", err);
+  }
+};
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
         cb(null,'uploads/');},
@@ -219,14 +177,14 @@ app.delete('/products/:id', async (req, res) => {       //delete product api
       
     }
 });
-app.get("/products/:id", async (req, res) => {
-  try {
-    const product = await ProductModel.findById(req.params.id);
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ error: "Fetching products failed" });
+app.get('/products/:id', async (req,res)=>{                 //get data via id api
+  try{
+    const product = await ProductModel.findById(req.params.id)
+    res.json(product)
+  }catch(err){
+    res.json(err)
   }
-});
+})
 app.put('/products/:id', upload.single('image'), async (req, res) => {
   try {
     const updatedProduct = {
@@ -245,8 +203,6 @@ app.put('/products/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-
-
 app.get('/GetProducts', (req,res)=>{
     ProductModel.find()                             //display for table api
     .then(products => res.json(products))
@@ -254,20 +210,16 @@ app.get('/GetProducts', (req,res)=>{
 });
 
 app.post("/check-user", async (req,res)=>{
-
   const {email} = req.body
-
   const user = await UserModel.findOne({email})
-
   if(user){
     res.json({exists:true})
   }else{
     res.json({exists:false})
   }
-
 })
 
-{/*app.post('/login', (req, res) => {
+/*app.post('/login', (req, res) => {
     const {email,password} = req.body;
     UserModel.findOne({email:email})                //login api
     .then(user=>{
@@ -294,34 +246,27 @@ app.post('/register', (req, res) => {           //register api
     UserModel.create(req.body)
     .then(users => res.json(users))
     .catch(err => res.json(err));
-});*/}
-
-
+});
+*/
 app.post("/add-address", authMiddleware, async (req, res) => {
   try {
     const address = new AddressModel({
       userId: req.user.id,
       ...req.body 
     });
-
     await address.save();
-
     res.json({ success: true, message: "Address added" });
-
   } catch (err) {
     res.status(500).json({ error: "Saving address failed" });
   }
 });
+
 app.get("/get-addresses", authMiddleware, async (req, res) => {
   try {
     console.log("USER FROM TOKEN:", req.user); 
-
     const addresses = await AddressModel.find({ userId: req.user.id });
-
     console.log("ADDRESSES:", addresses);   
-
     res.json(addresses);
-
   } catch (err) {
     console.log("ERROR IN GET ADDRESSES:", err);
     res.status(500).json({ error: "Fetching addresses failed" });
@@ -337,27 +282,23 @@ app.get("/get-addresses", authMiddleware, async (req, res) => {
   } 
 });*/
 
-
 app.post("/save-cart", authMiddleware, async (req, res) => {
   const userId = req.user.id;  
   const { items } = req.body;
-
   try {
     let cart = await CartModel.findOne({ userId });
-
     if (cart) {
       cart.items = items;
     } else {
       cart = new CartModel({ userId, items });
     }
-
     await cart.save();
     res.json({ success: true });
-
   } catch (err) {
     res.status(500).json({ error: "Saving to cart failed" });
   }
 });
+
 app.get("/get-cart", authMiddleware, async (req, res) => {
   try {
     const cart = await CartModel.findOne({ userId: req.user.id });
@@ -367,7 +308,7 @@ app.get("/get-cart", authMiddleware, async (req, res) => {
   }
 });
 
-app.post('/get-cart-items', async (req, res) => {
+app.post('/get-cart-items',authMiddleware, async (req, res) => {
   try {
     const { productIds } = req.body;
     const products = await ProductModel.find({ _id: { $in: productIds } });
@@ -377,9 +318,26 @@ app.post('/get-cart-items', async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+app.post("/create-order", authMiddleware, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    const options = {
+      amount: amount * 100, 
+      currency: "INR",
+      receipt: "order_rcptid_" + Date.now(),
+    };
+    const order = await razorpay.orders.create(options);
+    res.json(order);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 app.post('/orders', authMiddleware, async (req, res) => {
   try {
-    const { products, totalAmount, addressId } = req.body;
+    const { products, totalAmount, addressId ,paymentMethod,paymentId} = req.body;
     const address = await AddressModel.findById(addressId);
     if (!address) {
       return res.status(400).json({ error: "Address not found" });
@@ -389,6 +347,8 @@ app.post('/orders', authMiddleware, async (req, res) => {
       products,
       totalAmount,
       addressId,
+       paymentMethod,  
+      paymentId,
 
       addressDetails: {
         Name: address.Name,
@@ -400,20 +360,20 @@ app.post('/orders', authMiddleware, async (req, res) => {
         Pincode: address.Pincode
       }
     });
-
     await order.save();
+    const user = await UserModel.findById(req.user.id);
+await sendOrderEmail(user.email, "PLACED", order._id);
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
     );
-
     res.json({ success: true, message: "Order placed" });
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Order failed" });
   }
 });
+
 app.get('/users', async (req, res) => {
   const users = await UserModel.find();
   res.json(users);
@@ -427,23 +387,36 @@ app.get("/admin/orders", async (req, res) => {
     res.status(500).json({ error: "Fetching orders failed" });
   }
 });
+
 app.put("/admin/orders/:id", async (req, res) => {
   try {
     const { status } = req.body;
-    await OrderModel.findByIdAndUpdate(req.params.id, { status });
-    res.json({ success: true, message: "Status updated" });
+    const order = await OrderModel.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    order.status = status;
+    await order.save();
+    const user = await UserModel.findById(order.userId);
+    await sendOrderEmail(user.email, status, order._id);
+    res.json({ success: true, message: "Status updated + email sent" });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Update failed" });
   }
 });
-app.delete("/admin/orders/:id", async (req, res) => {
+
+app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   try {
-    await OrderModel.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
+    const order = await OrderModel.findById(req.params.id);
+    order.status = "Cancelled";
+    await order.save();
+    const user = await UserModel.findById(order.userId);
+    await sendOrderEmail(user.email, "Cancelled", order._id);
+    res.json({ success: true, message: "Order cancelled + email sent" });
   } catch (err) {
-    res.status(500).json({ error: "Delete failed" });
+    res.status(500).json({ error: "Cancel failed" });
   }
 });
+
 /*app.get("/orders", authMiddleware, async (req, res) => {
   try {
     console.log("Fetching orders...");
@@ -455,6 +428,7 @@ app.delete("/admin/orders/:id", async (req, res) => {
     res.status(500).json({ error: "Fetching orders failed" });
   }
 });*/
+
 app.get("/my-orders", authMiddleware, async (req, res) => {
   try {
     const orders = await OrderModel.find({ userId: req.user.id })
@@ -466,6 +440,7 @@ app.get("/my-orders", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Fetching user orders failed" });
   }
 });
+
 app.get("/products/ordered", authMiddleware, async (req, res) => {
   try {
     const orders = await OrderModel.find({ userId: req.user.id });
@@ -477,14 +452,16 @@ app.get("/products/ordered", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Fetching ordered products failed" });
   }
 });
-{/*app.get("/products/:id", authMiddleware, async (req, res) => {
+
+app.get("/products/:id", authMiddleware, async (req, res) => {
   try {
     const product = await ProductModel.findById(req.params.id);
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: "Fetching products failed" });
   }
-});*/}
+});
+
 app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   try {
     await OrderModel.findByIdAndUpdate(req.params.id, {
@@ -495,6 +472,7 @@ app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Cancel failed" });
   }
 });
+
 /*app.delete("/orders/:id", authMiddleware, async (req, res) => {
   try {
     await OrderModel.findByIdAndDelete(req.params.id);
@@ -503,8 +481,9 @@ app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Delete failed" });
   }
 });*/
-const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+
+
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
 });

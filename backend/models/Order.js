@@ -1,22 +1,23 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  userId: String,
-
-  products: [
-    {
-     productId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "products"
-},
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users"
+  },
+  products: [{
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "products"
+      },
       quantity: Number
     }
   ],
-
   totalAmount: Number,
-
-  addressId: String,
-
+  addressId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Address"
+  },
   addressDetails: {
     Name: String,
     HouseNo: String,
@@ -26,22 +27,20 @@ const orderSchema = new mongoose.Schema({
     State: String,
     Pincode: String
   },
-
   paymentMethod: {
     type: String,
+    enum: ["COD", "RAZORPAY"],
     default: "COD"
   },
-
+  paymentId: String,
   status: {
     type: String,
     default: "Placed"
   },
-
   date: {
     type: Date,
     default: Date.now
   }
 });
-
 const OrderModel = mongoose.model("Order", orderSchema);
 module.exports = OrderModel;

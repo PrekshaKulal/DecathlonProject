@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 function Addresses() {
   const [addresses, setAddresses] = useState([]);
   const [selected, setSelected] = useState("");
+  const [paymentType, setPaymentType] = useState("COD");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   useEffect(() => {
@@ -32,29 +33,89 @@ const placeOrder = async () => {
     alert("Select address");
     return;
   }
+
   try {
-    const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/get-cart`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const cartRes = await axios.get(
+      `${import.meta.env.VITE_API_URL}/get-cart`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
     const items = cartRes.data.items;
+
     let totalAmount = 0;
+
     for (let item of items) {
-      const productRes = await axios.get(`${import.meta.env.VITE_API_URL}/products/${item.productId}`);
+      const productRes = await axios.get(
+        `${import.meta.env.VITE_API_URL}/products/${item.productId}`
+      );
+
       totalAmount += productRes.data.productPrice * item.quantity;
     }
-    await axios.post(`${import.meta.env.VITE_API_URL}/orders`,{
-        products: items,
-        totalAmount,
-        addressId: selected
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
+
+    // =========================
+    // COD ORDER
+    // =========================
+    if (paymentType === "COD") {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/orders`,
+        {
+          products: items,
+          totalAmount,
+          addressId: selected,
+          paymentMethod: "COD",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
-      }
-    );
-    alert("Order placed successfully");
-    navigate("/");
+      );
+
+      alert("COD Order placed successfully");
+      navigate("/");
+    }
+
+    // =========================
+    // RAZORPAY ORDER
+    // =========================
+    else if (paymentType === "RAZORPAY") {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/create-order`,
+        {
+          amount: totalAmount,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: data.amount,
+        currency: "INR",
+        name: "My Store",
+        order_id: data.id,
+        handler: async function (response) {
+          await axios.post(
+            `${import.meta.env.VITE_API_URL}/orders`,
+            {
+              products: items,
+              totalAmount,
+              addressId: selected,
+              paymentMethod: "RAZORPAY",
+              paymentId: response.razorpay_payment_id,
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          alert("Payment Successful & Order Placed");
+          navigate("/");
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    }
   } catch (err) {
     console.log("ORDER ERROR:", err);
   }
@@ -74,8 +135,33 @@ const placeOrder = async () => {
         + Add New Address
       </button>
       <br /><br />
+      <h3>Choose Payment Method</h3>
+
+<div>
+  <label>
+    <input
+      type="radio"
+      value="COD"
+      checked={paymentType === "COD"}
+      onChange={() => setPaymentType("COD")}
+    />
+    Cash on Delivery
+  </label>
+</div>
+
+<div>
+  <label>
+    <input
+      type="radio"
+      value="RAZORPAY"
+      checked={paymentType === "RAZORPAY"}
+      onChange={() => setPaymentType("RAZORPAY")}
+    />
+    Online Payment (Razorpay)
+  </label>
+</div>
       <button onClick={placeOrder}>
-        Place Order (COD)
+        Place Order 
       </button>
     </div>
   );

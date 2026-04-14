@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "axios": "^1.13.5",
     "cors": "^2.8.6",
     "dotenv": "^17.4.1",
@@ -19,6 +20,7 @@
     "mongoose": "^9.4.1",
     "multer": "^2.1.0",
     "nodemon": "^3.1.13",
+    "razorpay": "^2.9.6",
     "resend": "^6.10.0",
     "sib-api-v3-sdk": "^8.5.0"
   }
