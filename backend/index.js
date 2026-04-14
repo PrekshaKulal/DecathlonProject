@@ -80,7 +80,7 @@ app.post("/send-otp", async (req, res) => {
 
   const msg = {
     to: email,
-    from: process.env.EMAIL_USER, // MUST be verified in SendGrid
+    from:`Decathlon <${process.env.EMAIL_USER}>`, // MUST be verified in SendGrid
     subject: "Your OTP Code",
     text: `Your OTP is ${otp}`,
     html: `<h2>Your OTP is ${otp}</h2>`
@@ -89,10 +89,11 @@ app.post("/send-otp", async (req, res) => {
   try {
     await sgMail.send(msg);
     res.json({ success: true });
-  } catch (error) {
-    console.log(error.response?.body || error);
-    res.status(500).json({ error: "Email failed" });
-  }
+  }catch (error) {
+  console.log("FULL ERROR:", error);
+  console.log("SENDGRID ERROR:", error.response?.body);
+  res.status(500).json({ error: error.message });
+}
 });
 
 app.post("/verify-otp", async (req, res) => {
