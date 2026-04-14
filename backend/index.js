@@ -60,24 +60,14 @@ const authMiddleware = (req, res, next) => {
   }
 };
 let otpStore = {};
-
-
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
-
   if (!email) {
     return res.status(400).json({ error: "Email required" });
   }
-
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  otpStore[email] = {
-    otp,
-    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
-  };
-
+  otpStore[email] = { otp,expiresAt: Date.now() + 5 * 60 * 1000};
   console.log("Generated OTP:", otp);
-
   const msg = {
     to: email,
     from:process.env.EMAIL_USER, 
@@ -85,7 +75,6 @@ app.post("/send-otp", async (req, res) => {
     text: `Your OTP is ${otp}`,
     html: `<h2>Your OTP is ${otp}</h2>`
   };
-
   try {
     await sgMail.send(msg);
     res.json({ success: true });
@@ -98,27 +87,20 @@ app.post("/send-otp", async (req, res) => {
 
 app.post("/verify-otp", async (req, res) => {
   const { otp, email, type } = req.body;
-
   const record = otpStore[email];
-
   if (!record) {
     return res.json({ success: false, message: "OTP expired" });
   }
-
   if (Date.now() > record.expiresAt) {
     delete otpStore[email];
     return res.json({ success: false, message: "OTP expired" });
   }
-
   if (record.otp !== otp) {
     return res.json({ success: false, message: "Invalid OTP" });
   }
-
   delete otpStore[email];
-
   try {
     let user = await UserModel.findOne({ email });
-
     if (type === "register") {
       if (user) {
         return res.json({ success: false, message: "User already exists" });
@@ -126,25 +108,22 @@ app.post("/verify-otp", async (req, res) => {
       user = new UserModel({ email });
       await user.save();
     }
-
     if (type === "login") {
       if (!user) {
         return res.json({ success: false, message: "User not found" });
       }
     }
-
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-
     res.json({ success: true, token });
-
   } catch (error) {
     res.status(500).json({ error: "Database error" });
   }
 });
+
 const sendOrderEmail = async (email, status, orderId) => {
   try {
     await sgMail.send({
@@ -162,6 +141,7 @@ const sendOrderEmail = async (email, status, orderId) => {
     console.log("Email error:", err.response?.body || err);
   }
 };
+
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
         cb(null,'uploads/');},
