@@ -5,7 +5,7 @@ const multer=require('multer');
 const app = express();
 app.use(express.json());
 app.use(cors());
-const nodemailer = require("nodemailer");
+
 app.use('/uploads', express.static('uploads'));
 const UserModel  = require('./models/Users');
 const ProductModel=require('./models/Product');
@@ -18,6 +18,8 @@ const jwt = require("jsonwebtoken");
 const dns = require("dns");
 require('dotenv').config();
 const Razorpay = require("razorpay");
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -54,48 +56,64 @@ const authMiddleware = (req, res, next) => {
   }
 };
 let otpStore = {};
-const transporter = nodemailer.createTransport({
-  service: "gmail",
- auth: {
-  user: process.env.EMAIL_USER,
-  pass: process.env.EMAIL_PASS
-}
-});
+
 
 app.post("/send-otp", async (req, res) => {
-   const { email } = req.body;
- if (!email) {
+  const { email } = req.body;
+
+  if (!email) {
     return res.status(400).json({ error: "Email required" });
   }
-const otp = Math.floor(100000 + Math.random() * 900000).toString();
-otpStore[email] = otp;
-console.log("Generated OTP:", otp); 
-const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Otp",
-    text: `Your OTP is ${otp}`
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  otpStore[email] = {
+    otp,
+    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
   };
-try {
- await transporter.sendMail(mailOptions);
-  res.json({ success: true });
-} catch (error) {
- console.log(error);
- res.status(500).json({ error: "Email failed" });
- }
+
+  console.log("Generated OTP:", otp);
+
+  const msg = {
+    to: email,
+    from: process.env.EMAIL_USER, // MUST be verified in SendGrid
+    subject: "Your OTP Code",
+    text: `Your OTP is ${otp}`,
+    html: `<h2>Your OTP is ${otp}</h2>`
+  };
+
+  try {
+    await sgMail.send(msg);
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error.response?.body || error);
+    res.status(500).json({ error: "Email failed" });
+  }
 });
 
 app.post("/verify-otp", async (req, res) => {
   const { otp, email, type } = req.body;
-  if (!otpStore[email]) {
+
+  const record = otpStore[email];
+
+  if (!record) {
     return res.json({ success: false, message: "OTP expired" });
   }
-  if (String(otpStore[email]) !== String(otp)) {
+
+  if (Date.now() > record.expiresAt) {
+    delete otpStore[email];
+    return res.json({ success: false, message: "OTP expired" });
+  }
+
+  if (record.otp !== otp) {
     return res.json({ success: false, message: "Invalid OTP" });
   }
+
   delete otpStore[email];
+
   try {
     let user = await UserModel.findOne({ email });
+
     if (type === "register") {
       if (user) {
         return res.json({ success: false, message: "User already exists" });
@@ -103,32 +121,40 @@ app.post("/verify-otp", async (req, res) => {
       user = new UserModel({ email });
       await user.save();
     }
+
     if (type === "login") {
       if (!user) {
         return res.json({ success: false, message: "User not found" });
       }
     }
-    const token =jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
-    return res.json({ success: true, token });
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({ success: true, token });
+
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Database error" });
   }
 });
 const sendOrderEmail = async (email, status, orderId) => {
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await sgMail.send({
       to: email,
+      from: process.env.EMAIL_USER,
       subject: `Order Update: ${status}`,
       html: `
         <h2>Order Update</h2>
         <p>Your order <b>${orderId}</b> status is now:</p>
         <h3>${status}</h3>
-        <p>Thank you for shopping with us.</p>   `
+        <p>Thank you for shopping with us.</p>
+      `
     });
   } catch (err) {
-    console.log("Email error:", err);
+    console.log("Email error:", err.response?.body || err);
   }
 };
 const storage=multer.diskStorage({
