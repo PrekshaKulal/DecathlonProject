@@ -4,7 +4,11 @@ const cors = require('cors');
 const multer=require('multer');
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "https://decathlonproject-1.onrender.com",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 
 app.use('/uploads', express.static('uploads'));
 const UserModel  = require('./models/Users');
