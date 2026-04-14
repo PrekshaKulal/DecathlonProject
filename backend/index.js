@@ -80,7 +80,7 @@ app.post("/send-otp", async (req, res) => {
 
   const msg = {
     to: email,
-    from:`Decathlon <${process.env.EMAIL_USER}>`, // MUST be verified in SendGrid
+    from:process.env.EMAIL_USER, 
     subject: "Your OTP Code",
     text: `Your OTP is ${otp}`,
     html: `<h2>Your OTP is ${otp}</h2>`
