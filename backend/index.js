@@ -23,7 +23,7 @@ const dns = require("dns");
 require('dotenv').config();
 const Razorpay = require("razorpay");
 const sgMail = require('@sendgrid/mail');
-const CloudinaryStorage=require("multer-storage-cloudinary")
+const {CloudinaryStorage} =require("multer-storage-cloudinary")
 const cloudinary=require("cloudinary")
 
 
