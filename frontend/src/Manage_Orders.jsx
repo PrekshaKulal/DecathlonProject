@@ -40,23 +40,15 @@ const [products, setProducts] = useState([]);
 };*/
 const cancelItem = async (orderId, productId) => {
   try {
-    await axios.put(
-      `${import.meta.env.VITE_API_URL}/orders/cancel-item/${orderId}/${productId}`,
-      {},
+    await axios.put(`${import.meta.env.VITE_API_URL}/orders/cancel-item/${orderId}/${productId}`,{},
       {
         headers: { Authorization: `Bearer ${token}` }
       }
     );
 
-    setOrders(prev =>
-      prev.map(order =>
-        order._id === orderId
-          ? {
-              ...order,
+    setOrders(prev => prev.map(order => order._id === orderId ? {...order,
               products: order.products.map(prod =>
-                prod.productId._id === productId
-                  ? { ...prod, status: "Cancelled" }
-                  : prod
+                prod.productId._id === productId ? { ...prod, status: "Cancelled" } : prod
               )
             }
           : order

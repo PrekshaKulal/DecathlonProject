@@ -142,11 +142,7 @@ const sendOrderEmail = async (email, status, orderId, productName = "") => {
       subject: `Order Update - ${status}`,
       html: `
         <h2>Order Update</h2>
-        ${
-          productName
-            ? `<p>Your item <b>${productName}</b> is now:</p>`
-            : `<p>Your order <b>${orderId}</b> status is now:</p>`
-        }
+        ${ productName ? `<p>Your item <b>${productName}</b> is now:</p>` : `<p>Your order <b>${orderId}</b> status is now:</p>` }
         <h3>${status}</h3>
         <p>Order ID: ${orderId}</p>
         <p>Thank you for shopping with us.</p>
@@ -196,7 +192,6 @@ app.delete('/products/:id', async (req, res) => {       //delete product api
         if(!data){
             return res.json("Product not found");
         }
-     
         await ProductModel.findByIdAndDelete(req.params.id);
         res.json("Product deleted successfully");
     } catch (err) {
@@ -349,7 +344,6 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
 app.post("/create-order", authMiddleware, async (req, res) => {
   try {
     const { amount } = req.body;
-
     const options = {
       amount: amount * 100, 
       currency: "INR",
@@ -371,15 +365,11 @@ app.post('/orders', authMiddleware, async (req, res) => {
     }
    const order = new OrderModel({
   userId: req.user.id,
-  products: products.map(p => ({
-    ...p,
-    status: "Placed"
-  })),
+  products: products.map(p => ({ ...p,status: "Placed" })),
   totalAmount,
   addressId,
   paymentMethod,
   paymentId,
- 
       addressDetails: {
         Name: address.Name,
         HouseNo: address.HouseNo,
@@ -406,29 +396,18 @@ await sendOrderEmail(user.email, "PLACED", order._id);
 app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, res) => {
   try {
     const { orderId, productId } = req.params;
-
     const order = await OrderModel.findById(orderId);
-
     if (!order) return res.status(404).json({ error: "Order not found" });
-
-    
-
-   order.products = order.products.map(p => {
+    order.products = order.products.map(p => {
   if (p.productId.toString() === productId) {
     return { ...p.toObject(), status: "Cancelled" };
   }
   return p;
 });
     await order.save();
-
-    const user = await UserModel.findById(order.userId);
-
-    
+    const user = await UserModel.findById(order.userId); 
    await sendOrderEmail(user.email, "Cancelled", orderId); 
-   
-
     res.json({ success: true, message: "Item cancelled" });
-
   } catch (err) {
     res.status(500).json({ error: "Cancel failed" });
   }
@@ -441,7 +420,7 @@ app.get('/users', async (req, res) => {
 app.get("/admin/orders", async (req, res) => {
   try {
     const orders = await OrderModel.find()
-      .populate("products.productId")   // ✅ IMPORTANT
+      .populate("products.productId")  
       .sort({ date: -1 });
 
     res.json(orders);
@@ -506,29 +485,18 @@ app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
   try {
     const { orderId, productId } = req.params;
     const { status } = req.body;
-
    const order = await OrderModel.findById(orderId);
-
     if (!order) return res.status(404).json({ error: "Order not found" });
-
-   
-
     order.products = order.products.map(p => {
     if (p.productId.toString() === productId) {
-      
         return { ...p.toObject(), status };
       }
       return p;
     });
-
     await order.save();
-
     const user = await UserModel.findById(order.userId);
-
   await sendOrderEmail(user.email, status, orderId);
-
     res.json({ success: true });
-
   } catch (err) {
     res.status(500).json({ error: "Update failed" });
   }

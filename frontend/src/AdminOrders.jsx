@@ -14,20 +14,16 @@ function AdminOrders() {
   };
  const updateItemStatus = async (orderId, productId, status) => {
   try {
-    await axios.put(
-      `${import.meta.env.VITE_API_URL}/admin/orders/item/${orderId}/${productId}`,
-      { status }
-    );
-
+    await axios.put(`${import.meta.env.VITE_API_URL}/admin/orders/item/${orderId}/${productId}`,{ status });
     fetchOrders();
   } catch (err) {
     console.log(err);
   }
 };
-  const deleteOrder = async (id) => {
+  /*const deleteOrder = async (id) => {
     await axios.delete(`${import.meta.env.VITE_API_URL}/admin/orders/${id}`);
     fetchOrders();
-  };
+  };*/
   const navigate = useNavigate();
   return (
     <>
@@ -45,14 +41,11 @@ function AdminOrders() {
  
   <div className="admin-orders">
   <h2>Manage Orders</h2>
-
   {orders.map((order) => (
   <div key={order._id} className="order-card">
-
     <p><b>Order ID:</b> {order._id}</p>
     <p><b>User ID:</b> {order.userId}</p>
     <p><b>Total:</b> ₹{order.totalAmount}</p>
-
     <div className="address-box">
       <b>Address:</b>
       <p>
@@ -61,26 +54,15 @@ function AdminOrders() {
         {order.addressDetails?.State} - {order.addressDetails?.Pincode}
       </p>
     </div>
-
-    {/* ✅ PRODUCTS LOOP INSIDE */}
     {order.products.map((p, i) => (
       <div key={i} className="product-row">
-        <img src={p.productId?.file} className="product-img" />
+  {  /*<img src={p.productId?.file} className="product-img" />*/}
 
         <div>
           <p><b>{p.productId?.productName}</b></p>
           <p>Qty: {p.quantity}</p>
-          <p className="status">
-            Status: {p.status || "Placed"}
-          </p>
-
-          <select
-            className="status-select"
-            value={p.status || "Placed"}
-            onChange={(e) =>
-              updateItemStatus(order._id, p.productId._id, e.target.value)
-            }
-          >
+          <p className="status"> Status: {p.status || "Placed"}</p>
+          <select className="status-select"  value={p.status || "Placed"} onChange={(e) => updateItemStatus(order._id, p.productId._id, e.target.value) } >
             <option value="Placed">Placed</option>
             <option value="Packed">Packed</option>
             <option value="Shipped">Shipped</option>
