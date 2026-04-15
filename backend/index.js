@@ -407,32 +407,24 @@ app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, r
   try {
     const { orderId, productId } = req.params;
 
-    const order = await OrderModel.findById(orderId).populate("products.productId");
+    const order = await OrderModel.findById(orderId);
 
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    let cancelledProductName = "";
+    
 
-    order.products = order.products.map(p => {
-      if (p.productId._id.toString() === productId) {
-        cancelledProductName = p.productId.productName;
-        return { ...p.toObject(), status: "Cancelled" };
-      }
-      return p;
-    });
-
+   order.products = order.products.map(p => {
+  if (p.productId.toString() === productId) {
+    return { ...p.toObject(), status: "Cancelled" };
+  }
+  return p;
+});
     await order.save();
 
     const user = await UserModel.findById(order.userId);
 
     
-   await sendOrderEmail(
-  user.email,
-  "Cancelled",
-  orderId,
-  cancelledProductName
-);
-     
+   await sendOrderEmail(user.email, "Cancelled", orderId); 
    
 
     res.json({ success: true, message: "Item cancelled" });
@@ -512,15 +504,15 @@ app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
     const { orderId, productId } = req.params;
     const { status } = req.body;
 
-    const order = await OrderModel.findById(orderId).populate("products.productId");
+   const order = await OrderModel.findById(orderId);
 
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    let productName = "";
+   
 
     order.products = order.products.map(p => {
-      if (p.productId._id.toString() === productId) {
-        productName = p.productId.productName;
+    if (p.productId.toString() === productId) {
+      
         return { ...p.toObject(), status };
       }
       return p;
@@ -530,12 +522,7 @@ app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
 
     const user = await UserModel.findById(order.userId);
 
-   await sendOrderEmail(
-  user.email,
-  status,
-  orderId,
-  productName
-);
+  await sendOrderEmail(user.email, status, orderId);
 
     res.json({ success: true });
 
