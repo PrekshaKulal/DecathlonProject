@@ -16,15 +16,15 @@ const ProductModel=require('./models/Product');
 const OrderModel  =require('./models/Order');
 const CartModel = require("./models/Cart");
 const AddressModel = require("./models/Address");
-const fs=require("fs")
-const path=require("path")
+//const fs=require("fs")
+//const path=require("path")
 const jwt = require("jsonwebtoken");
 const dns = require("dns");
 require('dotenv').config();
 const Razorpay = require("razorpay");
 const sgMail = require('@sendgrid/mail');
 const {CloudinaryStorage} =require("multer-storage-cloudinary")
-const cloudinary=require("cloudinary")
+const {v2:cloudinary} =require("cloudinary")
 
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
