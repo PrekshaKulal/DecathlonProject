@@ -168,14 +168,14 @@ const storage = new CloudinaryStorage({
     }
 })*/
 const upload=multer({storage:storage});
-app.post('/products', upload.single('image'), async (req, res) => {     //add product api
+app.post('/products', upload.single('file'), async (req, res) => {     //add product api
     try {
      const product = new ProductModel({
             productName: req.body.productName,
             productPrice: req.body.productPrice,
             productCategory: req.body.productCategory,
             productDescription: req.body.productDescription,
-            image: req.file.filename
+            file:req.files.file[0].path
         });
       await product.save();
      res.json("Product Added Successfully");
@@ -214,7 +214,7 @@ app.get('/products/:id', async (req,res)=>{                 //get data via id ap
     res.json(err)
   }
 })
-app.put('/products/:id', upload.single('image'), async (req, res) => {
+app.put('/products/:id', upload.single('file'), async (req, res) => {
   try {
     const updatedProduct = {
     productName: req.body.productName,                      //updating api
@@ -223,7 +223,7 @@ app.put('/products/:id', upload.single('image'), async (req, res) => {
     productDescription: req.body.productDescription
     }
     if(req.file){
-      updatedProduct.image = req.file.filename
+      updatedProduct.file = req.file.filename
     }
     await ProductModel.findByIdAndUpdate(req.params.id, updatedProduct)
     res.json("Product Updated")

@@ -12,7 +12,7 @@ const Add_Product = () => {
     const [productPrice, setProductPrice] = useState("");
     const [productCategory, setProductCategory] = useState("");
     const [productDescription, setProductDescription] = useState("");
-    const [image, setImage] = useState(null);
+    const [file, setImage] = useState(null);
     const {id} = useParams();
 
    useEffect(()=>{
@@ -23,7 +23,7 @@ const Add_Product = () => {
     setProductPrice(res.data.productPrice)
     setProductCategory(res.data.productCategory)
     setProductDescription(res.data.productDescription)
-    setImage(res.data.image)
+    setImage(res.data.file)
   })}},[id])
 
     const handleImageSelect = (e) => {
@@ -45,7 +45,7 @@ const Add_Product = () => {
   formData.append("productPrice", productPrice);
   formData.append("productCategory", productCategory);
   formData.append("productDescription", productDescription);
-  formData.append("image", image);
+  formData.append("image", file);
   
 if(id){
   axios.put(`${import.meta.env.VITE_API_URL}/products/${id}`,formData)
@@ -128,7 +128,7 @@ const navigate = useNavigate();
         </label><br/><br/>
          <label>
             Upload Image :<br/>
-            <input type="file" name="image" id="imageInput" accept='image/*'  onChange={handleImageSelect} />
+            <input type="file" name="file" id="imageInput" accept='image/*'  onChange={handleImageSelect} />
         </label><br/><br/>
        
         <button type="submit">Add Product</button>
