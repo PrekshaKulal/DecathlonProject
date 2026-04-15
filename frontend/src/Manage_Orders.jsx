@@ -102,7 +102,7 @@ const cancelItem = async (orderId, productId) => {
             <p className="qty">Qty: {p.quantity}</p>
 
             <p className={`status ${p.status.toLowerCase()}`}>
-              {pageXOffset.status}
+              {p.status}
             </p>
 
             <button
