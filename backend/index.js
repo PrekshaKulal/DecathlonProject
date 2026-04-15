@@ -191,15 +191,7 @@ app.delete('/products/:id', async (req, res) => {       //delete product api
         if(!data){
             return res.json("Product not found");
         }
-       const imagePath=path.join(__dirname,"uploads",data.image);
-      
-       fs.unlink(imagePath,(err)=>{
-         if(err){
-                console.log(err);
-            } else {
-                console.log("Image deleted");
-            }
-       });
+     
         await ProductModel.findByIdAndDelete(req.params.id);
         res.json("Product deleted successfully");
     } catch (err) {
