@@ -45,7 +45,7 @@ const Add_Product = () => {
   formData.append("productPrice", productPrice);
   formData.append("productCategory", productCategory);
   formData.append("productDescription", productDescription);
-  formData.append("image", file);
+  formData.append("file", file);
   
 if(id){
   axios.put(`${import.meta.env.VITE_API_URL}/products/${id}`,formData)

@@ -168,21 +168,22 @@ const storage = new CloudinaryStorage({
     }
 })*/
 const upload=multer({storage:storage});
-app.post('/products', upload.single('file'), async (req, res) => {     //add product api
-    try {
-     const product = new ProductModel({
-            productName: req.body.productName,
-            productPrice: req.body.productPrice,
-            productCategory: req.body.productCategory,
-            productDescription: req.body.productDescription,
-            file:req.files.file[0].path
-        });
-      await product.save();
-     res.json("Product Added Successfully");
-    } catch (err) {
-        console.log(err);
-        res.status(500).json(err);
-    }
+app.post('/products', upload.single('file'), async (req, res) => {
+  try {
+    const product = new ProductModel({
+      productName: req.body.productName,
+      productPrice: req.body.productPrice,
+      productCategory: req.body.productCategory,
+      productDescription: req.body.productDescription,
+      file: req.file.path   
+    });
+
+    await product.save();
+    res.json("Product Added Successfully");
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
 });
 app.delete('/products/:id', async (req, res) => {       //delete product api
     try {
