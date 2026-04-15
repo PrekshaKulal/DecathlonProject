@@ -10,7 +10,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use('/uploads', express.static('uploads'));
+//app.use('/uploads', express.static('uploads'));
 const UserModel  = require('./models/Users');
 const ProductModel=require('./models/Product');
 const OrderModel  =require('./models/Order');
