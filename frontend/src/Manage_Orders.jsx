@@ -74,10 +74,9 @@ const cancelOrder = async (id) => {
         <p><b>Total:</b> ₹{ord.totalAmount}</p>
       </div>
       {ord.products.map((p, i) => (
+        
         <div key={i} className="product-row">
-       <img
-  src={p.productId?.file} className="product-img"
-/>
+       <img src={p.productId?.file} className="product-img"/>
           <div className="product-info">
             <h4> {p.productId?.productName || p.productId?.name || "No Name"}</h4>
             <p className="desc">{p.productId?.productDescription}</p>
