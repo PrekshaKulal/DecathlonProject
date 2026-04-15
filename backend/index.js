@@ -23,7 +23,17 @@ const dns = require("dns");
 require('dotenv').config();
 const Razorpay = require("razorpay");
 const sgMail = require('@sendgrid/mail');
+const CloudinaryStorage=require("multer-storage-cloudinary")
+const cloudinary=require("cloudinary")
+
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+cloudinary.config({
+  cloudname:process.env.CLOUD_NAME,
+  api_key:process.env.CLOUDINARY_API_KEY,
+  api_secret:process.env.CLOUDINARY_API_SECRET
+});
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -142,13 +152,21 @@ const sendOrderEmail = async (email, status, orderId) => {
   }
 };
 
-const storage=multer.diskStorage({
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'Decathlon',
+    format: async (req, file) => 'jpeg', 
+    public_id: (req, file) => file.fieldname+'-'+Date.now(),
+  },
+});
+/*const storage=multer.diskStorage({
     destination:function(req,file,cb){
         cb(null,'uploads/');},
     filename:function(req,file,cb){
         cb(null,Date.now()+file.originalname);
     }
-})
+})*/
 const upload=multer({storage:storage});
 app.post('/products', upload.single('image'), async (req, res) => {     //add product api
     try {
