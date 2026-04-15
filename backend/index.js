@@ -440,7 +440,10 @@ app.get('/users', async (req, res) => {
 
 app.get("/admin/orders", async (req, res) => {
   try {
-    const orders = await OrderModel.find().sort({ date: -1 });
+    const orders = await OrderModel.find()
+      .populate("products.productId")   // ✅ IMPORTANT
+      .sort({ date: -1 });
+
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: "Fetching orders failed" });

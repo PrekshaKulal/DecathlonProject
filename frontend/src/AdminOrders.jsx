@@ -46,54 +46,53 @@ function AdminOrders() {
   <div className="admin-orders">
   <h2>Manage Orders</h2>
 
-  {orders.flatMap((order) =>
-    order.products.map((p, i) => (
-      <div key={`${order._id}-${i}`} className="order-card">
+  {orders.map((order) => (
+  <div key={order._id} className="order-card">
 
-        <p><b>Order ID:</b> {order._id}</p>
-        <p><b>User ID:</b> {order.userId}</p>
-        <p><b>Total:</b> ₹{order.totalAmount}</p>
+    <p><b>Order ID:</b> {order._id}</p>
+    <p><b>User ID:</b> {order.userId}</p>
+    <p><b>Total:</b> ₹{order.totalAmount}</p>
 
-        <div className="address-box">
-          <b>Address:</b>
-          <p>
-            {order.addressDetails?.Name}, {order.addressDetails?.HouseNo}, 
-            {order.addressDetails?.Street}, {order.addressDetails?.City}, 
-            {order.addressDetails?.State} - {order.addressDetails?.Pincode}
+    <div className="address-box">
+      <b>Address:</b>
+      <p>
+        {order.addressDetails?.Name}, {order.addressDetails?.HouseNo}, 
+        {order.addressDetails?.Street}, {order.addressDetails?.City}, 
+        {order.addressDetails?.State} - {order.addressDetails?.Pincode}
+      </p>
+    </div>
+
+    {/* ✅ PRODUCTS LOOP INSIDE */}
+    {order.products.map((p, i) => (
+      <div key={i} className="product-row">
+        <img src={p.productId?.file} className="product-img" />
+
+        <div>
+          <p><b>{p.productId?.productName}</b></p>
+          <p>Qty: {p.quantity}</p>
+          <p className="status">
+            Status: {p.status || "Placed"}
           </p>
+
+          <select
+            className="status-select"
+            value={p.status || "Placed"}
+            onChange={(e) =>
+              updateItemStatus(order._id, p.productId._id, e.target.value)
+            }
+          >
+            <option value="Placed">Placed</option>
+            <option value="Packed">Packed</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
         </div>
-
-        {/* ✅ SINGLE PRODUCT PER BOX */}
-        <div className="product-row">
-          <img src={p.productId?.file} className="product-img" />
-
-          <div>
-            <p><b>{p.productId?.productName}</b></p>
-            <p>Qty: {p.quantity}</p>
-            <p className="status">
-              Status: {p.status || "Placed"}
-            </p>
-
-            {/* ✅ STATUS CHANGE PER PRODUCT */}
-            <select
-              className="status-select"
-              value={p.status || "Placed"}
-              onChange={(e) =>
-                updateItemStatus(order._id, p.productId._id, e.target.value)
-              }
-            >
-              <option value="Placed">Placed</option>
-              <option value="Packed">Packed</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
-        </div>
-
       </div>
-    ))
-  )}
+    ))}
+
+  </div>
+))}
 </div>
   </>
 );
