@@ -59,6 +59,7 @@ function AdminOrders() {
   {  /*<img src={p.productId?.file} className="product-img" />*/}
 
         <div>
+          <p>Product ID: {p.productId}</p>
           <p><b>{p.productId?.productName}</b></p>
           <p>Qty: {p.quantity}</p>
           <p className="status"> Status: {p.status || "Placed"}</p>
