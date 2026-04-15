@@ -30,7 +30,7 @@ const {v2:cloudinary} =require("cloudinary")
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 cloudinary.config({
-  cloudname:process.env.CLOUD_NAME,
+  cloud_name:process.env.CLOUD_NAME,
   api_key:process.env.CLOUDINARY_API_KEY,
   api_secret:process.env.CLOUDINARY_API_SECRET
 });
@@ -224,7 +224,7 @@ app.put('/products/:id', upload.single('file'), async (req, res) => {
     productDescription: req.body.productDescription
     }
     if(req.file){
-      updatedProduct.file = req.file.filename
+      updatedProduct.file = req.file.path
     }
     await ProductModel.findByIdAndUpdate(req.params.id, updatedProduct)
     res.json("Product Updated")
