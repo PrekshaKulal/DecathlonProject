@@ -19,9 +19,7 @@ if (!token) {
   return;
 }
     try {
-      const res = await axios.get(
-  `${import.meta.env.VITE_API_URL}/get-cart`,
-  {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/get-cart`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`
     }
@@ -29,9 +27,7 @@ if (!token) {
 );
       const cartItems = res.data.items;
       const productIds = cartItems.map(item => item.productId);
-      const productsRes = await axios.post(
-  `${import.meta.env.VITE_API_URL}/get-cart-items`,
-  { productIds },
+      const productsRes = await axios.post(`${import.meta.env.VITE_API_URL}/get-cart-items`, { productIds },
   {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -43,14 +39,12 @@ if (!token) {
       cartItems.forEach(item => {
         qtyMap[item.productId] = item.quantity;
       });
-
       setCount(qtyMap);
 
     } catch (err) {
       console.log(err);
     }
   };
-
   fetchCart();
 }, [navigate]);
 
@@ -62,25 +56,25 @@ if (!token) {
       quantity: count[pid]
     }));
 
- axios.post(
-  `${import.meta.env.VITE_API_URL}/save-cart`,
-  { items },
-  {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
+  await axios.post(
+    `${import.meta.env.VITE_API_URL}/save-cart`,
+    { items: updatedItems }, 
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      }
     }
-  }
-);
+  );
+
   setProducts(products.filter(p => p._id !== id));
 };
-
 let totalAmount = 0;
 products.forEach((product) => {
   const qty = count[product._id] || 1;
   totalAmount += product.productPrice * qty;
 });
 
-const placeOrder = async () => {
+/*const placeOrder = async () => {
   const userId = localStorage.getItem("userId");
   const orderProducts = products.map((product) => ({
     productId: product._id,
@@ -115,7 +109,7 @@ const placeOrder = async () => {
   } catch (err) {
     console.log(err);
   }
-};
+};*/
     return(
         <>
         <div>
