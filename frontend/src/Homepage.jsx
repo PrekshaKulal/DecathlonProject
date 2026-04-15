@@ -93,7 +93,7 @@ useEffect(() => {
 
 {products.map((product) => (
 <Link to={`/individual/${product._id}`} className='eachcard' key={product._id}>
-<img src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={product.productName} />
+<img src={product.file} alt={product.productName} />
 <p className='bigcardtext'>{product.productName}</p>
 <h3 className='smalltext'>MRP Rs {product.productPrice}</h3>
 
