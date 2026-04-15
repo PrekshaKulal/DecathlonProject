@@ -75,10 +75,8 @@ const cancelOrder = async (id) => {
       </div>
       {ord.products.map((p, i) => (
         <div key={i} className="product-row">
-         <img
-  src={p.productId?.file || p.file}
-  alt={p.productId?.productName}
-  className="product-img"
+       <img
+  src={`https://res.cloudinary.com/process.env.CLOUD_NAME/Decathlon/${p.productId?.file}`}
 />
           <div className="product-info">
             <h4> {p.productId?.productName || p.productId?.name || "No Name"}</h4>
