@@ -67,28 +67,41 @@ const cancelOrder = async (id) => {
     
  <div className="admin-orders">
   <h2>My Orders</h2>
-  {orders.map((ord) => (
-    <div key={ord._id} className="order-card">
-      <div className="order-header">
-        <p><b>Order ID:</b> {ord._id}</p>
-        <p><b>Total:</b> ₹{ord.totalAmount}</p>
-      </div>
-      {ord.products.map((p, i) => (
-        
-        <div key={i} className="product-row">
-       <img src={p.productId?.file} className="product-img"/>
+
+  {orders.flatMap((ord) =>
+    ord.products.map((p, i) => (
+      <div key={`${ord._id}-${i}`} className="order-card">
+
+        <div className="order-header">
+          <p><b>Order ID:</b> {ord._id}</p>
+          <p><b>Total:</b> ₹{ord.totalAmount}</p>
+        </div>
+
+        <div className="product-row">
+          <img src={p.productId?.file} className="product-img" />
+
           <div className="product-info">
-            <h4> {p.productId?.productName || p.productId?.name || "No Name"}</h4>
+            <h4>{p.productId?.productName || p.productId?.name || "No Name"}</h4>
             <p className="desc">{p.productId?.productDescription}</p>
             <p className="qty">Qty: {p.quantity}</p>
-            <p className={`status ${ord.status.toLowerCase()}`}> {ord.status}</p>
-<button className="cancel-btn" onClick={() => cancelOrder(ord._id)} disabled={ord.status === "Cancelled"}> Cancel Order</button>
+
+            <p className={`status ${ord.status.toLowerCase()}`}>
+              {ord.status}
+            </p>
+
+            <button
+              className="cancel-btn"
+              onClick={() => cancelOrder(ord._id)}
+              disabled={ord.status === "Cancelled"}
+            >
+              Cancel Order
+            </button>
           </div>
         </div>
-      ))}
 
-    </div>
-  ))}
+      </div>
+    ))
+  )}
 </div>
  
   </>
