@@ -420,7 +420,7 @@ app.get('/users', async (req, res) => {
 app.get("/admin/orders", async (req, res) => {
   try {
     const orders = await OrderModel.find()
-      .populate("products.productId")  
+      .populate("products.productId", "productName") 
       .sort({ date: -1 });
 
     res.json(orders);
