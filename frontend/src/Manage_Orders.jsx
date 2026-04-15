@@ -27,7 +27,7 @@ const [products, setProducts] = useState([]);
       console.log(err);
     }
 };
-const fetchProducts = async () => {
+/*const fetchProducts = async () => {
     console.log("Fetching products...");
    try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/products/ordered`, {
@@ -37,15 +37,31 @@ const fetchProducts = async () => {
     } catch (err) {
       console.log(err);
     }
-};
-const cancelOrder = async (id) => {
+};*/
+const cancelItem = async (orderId, productId) => {
   try {
-    await axios.put( `${import.meta.env.VITE_API_URL}/orders/cancel/${id}`,{},
+    await axios.put(
+      `${import.meta.env.VITE_API_URL}/orders/cancel-item/${orderId}/${productId}`,
+      {},
       {
         headers: { Authorization: `Bearer ${token}` }
       }
     );
-    setOrders((prev) => prev.map((ord) => ord._id === id ? { ...ord, status: "Cancelled" } : ord ));
+
+    setOrders(prev =>
+      prev.map(order =>
+        order._id === orderId
+          ? {
+              ...order,
+              products: order.products.map(prod =>
+                prod.productId._id === productId
+                  ? { ...prod, status: "Cancelled" }
+                  : prod
+              )
+            }
+          : order
+      )
+    );
   } catch (err) {
     console.log(err);
   }
@@ -85,14 +101,14 @@ const cancelOrder = async (id) => {
             <p className="desc">{p.productId?.productDescription}</p>
             <p className="qty">Qty: {p.quantity}</p>
 
-            <p className={`status ${ord.status.toLowerCase()}`}>
-              {ord.status}
+            <p className={`status ${p.status.toLowerCase()}`}>
+              {pageXOffset.status}
             </p>
 
             <button
               className="cancel-btn"
-              onClick={() => cancelOrder(ord._id)}
-              disabled={ord.status === "Cancelled"}
+             onClick={() => cancelItem(ord._id, p.productId._id)}
+              disabled={p.status === "Cancelled"}
             >
               Cancel Order
             </button>

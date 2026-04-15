@@ -364,14 +364,17 @@ app.post('/orders', authMiddleware, async (req, res) => {
     if (!address) {
       return res.status(400).json({ error: "Address not found" });
     }
-    const order = new OrderModel({
-      userId: req.user.id,
-      products,
-      totalAmount,
-      addressId,
-       paymentMethod,  
-      paymentId,
-
+   const order = new OrderModel({
+  userId: req.user.id,
+  products: products.map(p => ({
+    ...p,
+    status: "Placed"
+  })),
+  totalAmount,
+  addressId,
+  paymentMethod,
+  paymentId,
+ 
       addressDetails: {
         Name: address.Name,
         HouseNo: address.HouseNo,
@@ -393,6 +396,28 @@ await sendOrderEmail(user.email, "PLACED", order._id);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Order failed" });
+  }
+});
+app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, res) => {
+  try {
+    const { orderId, productId } = req.params;
+
+    const order = await OrderModel.findById(orderId);
+
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    order.products = order.products.map(p => {
+      if (p.productId.toString() === productId) {
+        return { ...p.toObject(), status: "Cancelled" };
+      }
+      return p;
+    });
+
+    await order.save();
+
+    res.json({ success: true, message: "Item cancelled" });
+  } catch (err) {
+    res.status(500).json({ error: "Cancel failed" });
   }
 });
 
@@ -425,7 +450,7 @@ app.put("/admin/orders/:id", async (req, res) => {
     res.status(500).json({ error: "Update failed" });
   }
 });
-
+/*
 app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   try {
     const order = await OrderModel.findById(req.params.id);
@@ -438,7 +463,7 @@ app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Cancel failed" });
   }
 });
-
+*/
 /*app.get("/orders", authMiddleware, async (req, res) => {
   try {
     console.log("Fetching orders...");
@@ -463,7 +488,7 @@ app.get("/my-orders", authMiddleware, async (req, res) => {
   }
 });
 
-app.get("/products/ordered", authMiddleware, async (req, res) => {
+/*app.get("/products/ordered", authMiddleware, async (req, res) => {
   try {
     const orders = await OrderModel.find({ userId: req.user.id });
     const productIds = orders.flatMap(order => order.products.map(p => p.productId));
@@ -473,7 +498,7 @@ app.get("/products/ordered", authMiddleware, async (req, res) => {
     console.log(err);
     res.status(500).json({ error: "Fetching ordered products failed" });
   }
-});
+});*/
 
 app.get("/products/:id", authMiddleware, async (req, res) => {
   try {
@@ -483,7 +508,7 @@ app.get("/products/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Fetching products failed" });
   }
 });
-
+/*
 app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   try {
     await OrderModel.findByIdAndUpdate(req.params.id, {
@@ -493,7 +518,7 @@ app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Cancel failed" });
   }
-});
+});*/
 
 /*app.delete("/orders/:id", authMiddleware, async (req, res) => {
   try {

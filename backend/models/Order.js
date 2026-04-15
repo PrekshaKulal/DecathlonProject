@@ -5,14 +5,17 @@ const orderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "users"
   },
-  products: [{
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "products"
-      },
-      quantity: Number
-    }
-  ],
+ products: [{
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "products"
+  },
+  quantity: Number,
+  status: {
+    type: String,
+    default: "Placed"
+  }
+}],
   totalAmount: Number,
   addressId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -33,10 +36,7 @@ const orderSchema = new mongoose.Schema({
     default: "COD"
   },
   paymentId: String,
-  status: {
-    type: String,
-    default: "Placed"
-  },
+  
   date: {
     type: Date,
     default: Date.now
