@@ -12,10 +12,18 @@ function AdminOrders() {
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin/orders`);
     setOrders(res.data);
   };
-  const updateStatus = async (id, status) => {
-    await axios.put(`${import.meta.env.VITE_API_URL}/admin/orders/${id}`, { status });
-    fetchOrders(); 
-  };
+ const updateItemStatus = async (orderId, productId, status) => {
+  try {
+    await axios.put(
+      `${import.meta.env.VITE_API_URL}/admin/orders/item/${orderId}/${productId}`,
+      { status }
+    );
+
+    fetchOrders();
+  } catch (err) {
+    console.log(err);
+  }
+};
   const deleteOrder = async (id) => {
     await axios.delete(`${import.meta.env.VITE_API_URL}/admin/orders/${id}`);
     fetchOrders();
@@ -36,12 +44,16 @@ function AdminOrders() {
         </div>
  
   <div className="admin-orders">
-    <h2>Manage Orders</h2>
-    {orders.map((order) => (
-      <div key={order._id} className="order-card">
+  <h2>Manage Orders</h2>
+
+  {orders.flatMap((order) =>
+    order.products.map((p, i) => (
+      <div key={`${order._id}-${i}`} className="order-card">
+
         <p><b>Order ID:</b> {order._id}</p>
         <p><b>User ID:</b> {order.userId}</p>
         <p><b>Total:</b> ₹{order.totalAmount}</p>
+
         <div className="address-box">
           <b>Address:</b>
           <p>
@@ -50,27 +62,39 @@ function AdminOrders() {
             {order.addressDetails?.State} - {order.addressDetails?.Pincode}
           </p>
         </div>
-        <div className="products-box">
-          <b>Products:</b>
-          {order.products.map((p, i) => (
-            <p key={i}>Product: {p.productId} | Qty: {p.quantity}</p>
-          ))}
+
+        {/* ✅ SINGLE PRODUCT PER BOX */}
+        <div className="product-row">
+          <img src={p.productId?.file} className="product-img" />
+
+          <div>
+            <p><b>{p.productId?.productName}</b></p>
+            <p>Qty: {p.quantity}</p>
+            <p className="status">
+              Status: {p.status || "Placed"}
+            </p>
+
+            {/* ✅ STATUS CHANGE PER PRODUCT */}
+            <select
+              className="status-select"
+              value={p.status || "Placed"}
+              onChange={(e) =>
+                updateItemStatus(order._id, p.productId._id, e.target.value)
+              }
+            >
+              <option value="Placed">Placed</option>
+              <option value="Packed">Packed</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
         </div>
-        <p className="status">Status: {order.status}</p>
-        <select className="status-select" onChange={(e) => updateStatus(order._id, e.target.value)} >
-          <option>Select Status</option>
-          <option value="Placed">Placed</option>
-          <option value="Packed">Packed</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
-        <div className="order-actions">
-          <button className="delete-btn" onClick={() => deleteOrder(order._id)}> Delete</button>
-        </div>
+
       </div>
-   ))}
-  </div>
+    ))
+  )}
+</div>
   </>
 );
 }

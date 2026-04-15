@@ -134,16 +134,21 @@ app.post("/verify-otp", async (req, res) => {
   }
 });
 
-const sendOrderEmail = async (email, status, orderId) => {
+const sendOrderEmail = async (email, status, orderId, productName = "") => {
   try {
     await sgMail.send({
       to: email,
       from: process.env.EMAIL_USER,
-      subject: `Order Update: ${status}`,
+      subject: `Order Update - ${status}`,
       html: `
         <h2>Order Update</h2>
-        <p>Your order <b>${orderId}</b> status is now:</p>
+        ${
+          productName
+            ? `<p>Your item <b>${productName}</b> is now:</p>`
+            : `<p>Your order <b>${orderId}</b> status is now:</p>`
+        }
         <h3>${status}</h3>
+        <p>Order ID: ${orderId}</p>
         <p>Thank you for shopping with us.</p>
       `
     });
@@ -402,12 +407,15 @@ app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, r
   try {
     const { orderId, productId } = req.params;
 
-    const order = await OrderModel.findById(orderId);
+    const order = await OrderModel.findById(orderId).populate("products.productId");
 
     if (!order) return res.status(404).json({ error: "Order not found" });
 
+    let cancelledProductName = "";
+
     order.products = order.products.map(p => {
-      if (p.productId.toString() === productId) {
+      if (p.productId._id.toString() === productId) {
+        cancelledProductName = p.productId.productName;
         return { ...p.toObject(), status: "Cancelled" };
       }
       return p;
@@ -415,12 +423,24 @@ app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, r
 
     await order.save();
 
+    const user = await UserModel.findById(order.userId);
+
+    
+   await sendOrderEmail(
+  user.email,
+  "Cancelled",
+  orderId,
+  cancelledProductName
+);
+     
+   
+
     res.json({ success: true, message: "Item cancelled" });
+
   } catch (err) {
     res.status(500).json({ error: "Cancel failed" });
   }
 });
-
 app.get('/users', async (req, res) => {
   const users = await UserModel.find();
   res.json(users);
@@ -487,7 +507,42 @@ app.get("/my-orders", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Fetching user orders failed" });
   }
 });
+app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
+  try {
+    const { orderId, productId } = req.params;
+    const { status } = req.body;
 
+    const order = await OrderModel.findById(orderId).populate("products.productId");
+
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    let productName = "";
+
+    order.products = order.products.map(p => {
+      if (p.productId._id.toString() === productId) {
+        productName = p.productId.productName;
+        return { ...p.toObject(), status };
+      }
+      return p;
+    });
+
+    await order.save();
+
+    const user = await UserModel.findById(order.userId);
+
+   await sendOrderEmail(
+  user.email,
+  status,
+  orderId,
+  productName
+);
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ error: "Update failed" });
+  }
+});
 /*app.get("/products/ordered", authMiddleware, async (req, res) => {
   try {
     const orders = await OrderModel.find({ userId: req.user.id });
