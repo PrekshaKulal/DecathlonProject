@@ -79,7 +79,7 @@ function Manage_Products(){
                         <td>Rs {product.productPrice.toFixed(2)}</td>
                         <td>{product.productCategory}</td>
                         <td>{product.productDescription}</td>
-                        <td><img src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image" /></td>
+                        <td><img src={product.file} alt={product.productName} className="product-image" /></td>
                        <td><div className='action-buttons'><button className="edit" onClick={()=>handleEdit(product._id)}>Edit</button >
                         <button className="delete" onClick={()=> { handleDelete(product._id) } }>Delete</button></div></td>
                       </tr>

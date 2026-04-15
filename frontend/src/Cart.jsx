@@ -146,7 +146,7 @@ const placeOrder = async () => {
                      
                       
                       <tr key={product._id}>
-                        <td><img src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image" /><br/>{product.productName}</td>
+                        <td><img src={product.file} alt={product.productName} className="product-image" /><br/>{product.productName}</td>
                         <td>Rs {product.productPrice.toFixed(2)}</td>
                         <td><input type="number" min="1"  value={count[product._id] || 1} onChange={(e) => {const newQty = Number(e.target.value);
  const updatedCount = { ...count, [product._id]: newQty };

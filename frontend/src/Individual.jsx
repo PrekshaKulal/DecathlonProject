@@ -80,7 +80,7 @@ await axios.post(
  <div className="product-details">
 
   <div className="product-image-container">
-    <img src={`${import.meta.env.VITE_API_URL}/uploads/${product.image}`} alt={product.productName} className="product-image"/>
+    <img src={product.file} alt={product.productName} className="product-image"/>
   
 </div>
   <div className="product-content">

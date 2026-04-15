@@ -76,7 +76,7 @@ const cancelOrder = async (id) => {
       {ord.products.map((p, i) => (
         <div key={i} className="product-row">
           <img
-            src={`${import.meta.env.VITE_API_URL}/uploads/${p.productId?.image}`}
+            src={product.file}
             alt={p.productId?.productName}
             className="product-img"
           />
