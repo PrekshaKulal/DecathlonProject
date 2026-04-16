@@ -420,11 +420,11 @@ app.post('/orders', authMiddleware, async (req, res) => {
     });
     await order.save();
     const user = await UserModel.findById(req.user.id);
-    const order1=await OrderModel.findById(req.user.order.id);
-    const product=await ProductModel.findById(req.product.id);
+   // const order1=await OrderModel.findById(req.user.order.id);
+   // const product=await ProductModel.findById(req.product.id);
     
 await sendOrderEmail(user.email, "PLACED", order._id);
-await GenerateBill(user.email, "PLACED", order1.orderId,product.productName,product.productPrice,order.quantity, paymentId,totalAmount);
+//await GenerateBill(user.email, "PLACED", order1.orderId,product.productName,product.productPrice,order.quantity, paymentId,totalAmount);
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
