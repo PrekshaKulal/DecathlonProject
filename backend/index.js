@@ -152,6 +152,44 @@ const sendOrderEmail = async (email, status, orderId, productName = "") => {
     console.log("Email error:", err.response?.body || err);
   }
 };
+const GenerateBill = async (email, status, orderId,productName="",productPrice,quantity, paymentId,totalAmount) => {
+  try {
+    await sgMail.send({
+      to: email,
+      from: process.env.EMAIL_USER,
+      subject: `Payment Receipt`,
+      html: `
+        <h2>Invoice</h2>
+      <p>Your order <b>${orderId}</b> status is now:</p>
+        <h3>${status}</h3>
+        <p>with the payment Id of <b> ${paymentId}</b></p>
+        <p>Order ID: ${orderId}</p>
+        <p>Find your invoice attached </p>
+        <table>
+        <thead>
+        <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total</th>
+        </tr>
+        </thead>
+        <tr>
+        <td>${productName}</td>
+        <td>${productPrice}</td>
+         <td>${quantity}</td>
+        <td>${productPrice*quantity}</td>
+
+        </tr>
+        </table>
+        <p>Total Amount: ${totalAmount}</p>
+        <p>Thank you for shopping with us.</p>
+      `
+    });
+  } catch (err) {
+    console.log("Email error:", err.response?.body || err);
+  }
+};
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -382,7 +420,11 @@ app.post('/orders', authMiddleware, async (req, res) => {
     });
     await order.save();
     const user = await UserModel.findById(req.user.id);
+    const order1=await OrderModel.findById(req.user.order.id);
+    const product=await ProductModel.findById(req.product.id);
+    
 await sendOrderEmail(user.email, "PLACED", order._id);
+await GenerateBill(user.email, "PLACED", order1.orderId,product.productName,product.productPrice,order.quantity, paymentId,totalAmount);
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
@@ -521,6 +563,17 @@ app.get("/products/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Fetching products failed" });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
 /*
 app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   try {
