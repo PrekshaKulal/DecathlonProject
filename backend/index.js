@@ -420,9 +420,9 @@ app.post('/orders', authMiddleware, async (req, res) => {
     });
     await order.save();
     const user = await UserModel.findById(req.user.id);
-    const orders=await OrderModel.findById(req.order.id);
+   // const orders=await OrderModel.findById(req.order.id);
 await sendOrderEmail(user.email, "PLACED", order._id);
-const GenerateBill = async (orderId,status,paymentId,totalAmount) => {
+/*const GenerateBill = async (orderId,status,paymentId,totalAmount) => {
   try {
     await sgMail.send({
       to: email,
@@ -461,7 +461,7 @@ const GenerateBill = async (orderId,status,paymentId,totalAmount) => {
     console.log("Email error:", err.response?.body || err);
   }
 };
-await GenerateBill(order._id,"PLACED",paymentId,totalAmount);
+await GenerateBill(order._id,"PLACED",paymentId,totalAmount);*/
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
