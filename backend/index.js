@@ -189,8 +189,7 @@ const sendOrderEmail = async (email, status, orderId, productName = "") => {
   } catch (err) {
     console.log("Email error:", err.response?.body || err);
   }
-};
-*/
+};*/
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -420,12 +419,9 @@ app.post('/orders', authMiddleware, async (req, res) => {
       }
     });
     await order.save();
-    //const user = await UserModel.findById(req.user.id);
-   // const order1=await OrderModel.findById(req.order.id);
-   // const product=await ProductModel.findById(req.product.id);
-    
+    const user = await UserModel.findById(req.user.id);
 await sendOrderEmail(user.email, "PLACED", order._id);
-//await GenerateBill(user.email, "PLACED", order1.orderId,product.productName,product.productPrice,order.quantity, paymentId,totalAmount);
+
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
