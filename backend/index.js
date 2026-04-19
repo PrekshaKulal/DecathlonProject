@@ -468,19 +468,19 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
     res.status(500).json(err);
   }
 });
-app.post("/create-order", authMiddleware, async (req, res) => {
+aapp.post("/create-order", authMiddleware, async (req, res) => {
   try {
-    console.log("BODY:", req.body);
-
     const { products } = req.body;
 
-    if (!products || !Array.isArray(products)) {
+    if (!products || products.length === 0) {
       return res.status(400).json({ error: "Products missing" });
     }
 
     let subtotal = 0;
 
     for (const item of products) {
+      if (!item.productId || !item.quantity) continue;
+
       const dbProduct = await ProductModel.findById(item.productId);
 
       if (!dbProduct) continue;
@@ -488,17 +488,21 @@ app.post("/create-order", authMiddleware, async (req, res) => {
       subtotal += Number(dbProduct.productPrice) * Number(item.quantity);
     }
 
+    if (subtotal <= 0) {
+      return res.status(400).json({ error: "Invalid cart data" });
+    }
+
     const gst = subtotal * 0.18;
     const finalAmount = subtotal + gst;
 
-    const order = await razorpay.orders.create({
+    const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(finalAmount * 100),
       currency: "INR",
-      receipt: "order_" + Date.now()
+      receipt: "receipt_" + Date.now(),
     });
 
     res.json({
-      razorpayOrder: order,
+      razorpayOrder,
       subtotal,
       gst,
       finalAmount
@@ -506,7 +510,7 @@ app.post("/create-order", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.log("CREATE ORDER ERROR:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Failed to create order" });
   }
 });
 /*
