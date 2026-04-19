@@ -468,7 +468,48 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
     res.status(500).json(err);
   }
 });
+app.post("/create-order", authMiddleware, async (req, res) => {
+  try {
+    console.log("BODY:", req.body);
 
+    const { products } = req.body;
+
+    if (!products || !Array.isArray(products)) {
+      return res.status(400).json({ error: "Products missing" });
+    }
+
+    let subtotal = 0;
+
+    for (const item of products) {
+      const dbProduct = await ProductModel.findById(item.productId);
+
+      if (!dbProduct) continue;
+
+      subtotal += Number(dbProduct.productPrice) * Number(item.quantity);
+    }
+
+    const gst = subtotal * 0.18;
+    const finalAmount = subtotal + gst;
+
+    const order = await razorpay.orders.create({
+      amount: Math.round(finalAmount * 100),
+      currency: "INR",
+      receipt: "order_" + Date.now()
+    });
+
+    res.json({
+      razorpayOrder: order,
+      subtotal,
+      gst,
+      finalAmount
+    });
+
+  } catch (err) {
+    console.log("CREATE ORDER ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+/*
 app.post("/create-order", authMiddleware, async (req, res) => {
   try {
     const { products } = req.body;
@@ -504,7 +545,7 @@ app.post("/create-order", authMiddleware, async (req, res) => {
     res.status(500).json(err);
   }
 });
-
+*/
 app.post('/orders', authMiddleware, async (req, res) => {
   try {
     const { products, addressId ,paymentMethod,paymentId} = req.body;
