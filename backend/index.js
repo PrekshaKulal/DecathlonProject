@@ -16,8 +16,9 @@ const ProductModel=require('./models/Product');
 const OrderModel  =require('./models/Order');
 const CartModel = require("./models/Cart");
 const AddressModel = require("./models/Address");
-//const fs=require("fs")
-//const path=require("path")
+const PDFDocument = require("pdfkit");
+const fs=require("fs")
+const path=require("path")
 const jwt = require("jsonwebtoken");
 const dns = require("dns");
 require('dotenv').config();
@@ -190,7 +191,97 @@ const sendOrderEmail = async (email, status, orderId, productName = "") => {
     console.log("Email error:", err.response?.body || err);
   }
 };*/
+const generateGSTBill = async (order, userEmail) => {
+  return new Promise((resolve, reject) => {
 
+    const fileName = `Invoice-${order._id}.pdf`;
+    const filePath = path.join(__dirname, fileName);
+
+    const doc = new PDFDocument({ margin: 50 });
+    const stream = fs.createWriteStream(filePath);
+
+    doc.pipe(stream);
+
+    // Header
+    doc.fontSize(22).text("TAX INVOICE", { align: "center" });
+    doc.moveDown();
+
+    doc.fontSize(12).text(`Invoice No: ${order._id}`);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`);
+    doc.text(`Customer Email: ${userEmail}`);
+    doc.moveDown();
+
+    doc.text("Billing Address:");
+    doc.text(order.addressDetails.Name);
+    doc.text(order.addressDetails.HouseNo + ", " + order.addressDetails.Street);
+    doc.text(order.addressDetails.City + ", " + order.addressDetails.State);
+    doc.text("Pincode: " + order.addressDetails.Pincode);
+
+    doc.moveDown();
+
+    // Table Header
+    doc.text("-----------------------------------------------------");
+    doc.text("Product       Qty       Price       Total");
+    doc.text("-----------------------------------------------------");
+
+    let subtotal = 0;
+
+    order.products.forEach(item => {
+      const total = item.productPrice * item.quantity;
+      subtotal += total;
+
+      doc.text(
+        `${item.productName}   ${item.quantity}   ₹${item.productPrice}   ₹${total}`
+      );
+    });
+
+    const gst = subtotal * 0.18;
+    const grandTotal = subtotal + gst;
+
+    doc.moveDown();
+    doc.text("-----------------------------------------------------");
+    doc.text(`Subtotal: ₹${subtotal}`);
+    doc.text(`GST (18%): ₹${gst.toFixed(2)}`);
+    doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`);
+    doc.moveDown();
+
+    doc.text("Thank you for shopping with us!", {
+      align: "center"
+    });
+
+    doc.end();
+
+    stream.on("finish", () => resolve(filePath));
+    stream.on("error", reject);
+
+  });
+};
+
+const sendInvoiceMail = async (email, filePath, orderId) => {
+  try {
+    await sgMail.send({
+      to: email,
+      from: process.env.EMAIL_USER,
+      subject: "Your GST Invoice",
+      text: "Please find attached invoice.",
+      html: `<h2>Your order invoice</h2>
+             <p>Order ID: ${orderId}</p>
+             <p>Invoice attached below.</p>`,
+
+      attachments: [
+        {
+          content: fs.readFileSync(filePath).toString("base64"),
+          filename: `Invoice-${orderId}.pdf`,
+          type: "application/pdf",
+          disposition: "attachment"
+        }
+      ]
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -420,6 +511,14 @@ app.post('/orders', authMiddleware, async (req, res) => {
     });
     await order.save();
     const user = await UserModel.findById(req.user.id);
+
+const pdfPath = await generateGSTBill(order, user.email);
+
+await sendInvoiceMail(user.email, pdfPath, order._id);
+
+// delete local pdf after sending
+fs.unlinkSync(pdfPath);
+  
    // const orders=await OrderModel.findById(req.order.id);
 await sendOrderEmail(user.email, "PLACED", order._id);
 /*const GenerateBill = async (orderId,status,paymentId,totalAmount) => {
