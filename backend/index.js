@@ -468,7 +468,7 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
     res.status(500).json(err);
   }
 });
-aapp.post("/create-order", authMiddleware, async (req, res) => {
+app.post("/create-order", authMiddleware, async (req, res) => {
   try {
     const { products } = req.body;
 
