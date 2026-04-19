@@ -234,9 +234,8 @@ const generateGSTBill = async (order, userEmail) => {
         `${item.productName}   ${item.quantity}   ₹${item.productPrice}   ₹${total}`
       );
     });
-
-    const gst = subtotal * 0.18;
-    const grandTotal = subtotal + gst;
+const gst = order.gst;
+const grandTotal = order.totalAmount;
 
     doc.moveDown();
     doc.text("-----------------------------------------------------");
@@ -472,14 +471,35 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
 
 app.post("/create-order", authMiddleware, async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { products } = req.body;
+
+    let subtotal = 0;
+
+    for (const item of products) {
+      const dbProduct = await ProductModel.findById(item.productId);
+      if (!dbProduct) continue;
+
+      subtotal += Number(dbProduct.productPrice) * Number(item.quantity);
+    }
+
+    const gst = subtotal * 0.18;
+    const finalAmount = subtotal + gst;
+
     const options = {
-      amount: amount * 100, 
+      amount: Math.round(finalAmount * 100),
       currency: "INR",
-      receipt: "order_rcptid_" + Date.now(),
+      receipt: "order_" + Date.now()
     };
+
     const order = await razorpay.orders.create(options);
-    res.json(order);
+
+    res.json({
+      razorpayOrder: order,
+      subtotal,
+      gst,
+      finalAmount
+    });
+
   } catch (err) {
     res.status(500).json(err);
   }
@@ -487,28 +507,63 @@ app.post("/create-order", authMiddleware, async (req, res) => {
 
 app.post('/orders', authMiddleware, async (req, res) => {
   try {
-    const { products, totalAmount, addressId ,paymentMethod,paymentId} = req.body;
+    const { products, addressId ,paymentMethod,paymentId} = req.body;
     const address = await AddressModel.findById(addressId);
     if (!address) {
       return res.status(400).json({ error: "Address not found" });
     }
-   const order = new OrderModel({
+    const detailedProducts = [];
+
+let subtotal = 0;
+
+for (const item of products) {
+  const dbProduct = await ProductModel.findById(item.productId);
+
+  if (!dbProduct) continue;
+
+  const price = Number(dbProduct.productPrice);
+  const qty = Number(item.quantity);
+
+  const total = price * qty;
+
+  subtotal += total;
+
+  detailedProducts.push({
+    productId: dbProduct._id,
+    productName: dbProduct.productName,
+    productPrice: price,
+    quantity: qty,
+    total,
+    status: "Placed"
+  });
+}
+const gst = subtotal * 0.18;
+const finalAmount = subtotal + gst;
+
+const order = new OrderModel({
   userId: req.user.id,
-  products: products.map(p => ({ ...p,status: "Placed" })),
-  totalAmount,
+
+  products: detailedProducts,   // ✅ USE THIS
+
+  subtotal: subtotal,
+  gst: gst,
+  totalAmount: finalAmount,
+
   addressId,
   paymentMethod,
   paymentId,
-      addressDetails: {
-        Name: address.Name,
-        HouseNo: address.HouseNo,
-        Street: address.Street,
-        City: address.City,
-        District: address.District,
-        State: address.State,
-        Pincode: address.Pincode
-      }
-    });
+
+  addressDetails: {
+    Name: address.Name,
+    HouseNo: address.HouseNo,
+    Street: address.Street,
+    City: address.City,
+    District: address.District,
+    State: address.State,
+    Pincode: address.Pincode
+  }
+});
+   
     await order.save();
     const user = await UserModel.findById(req.user.id);
 
