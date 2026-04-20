@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +18,7 @@ function Addresses() {
     }
 
     fetchAddresses();
-  }, [token]);
+  }, []);
 
   const fetchAddresses = async () => {
     try {
@@ -47,7 +48,7 @@ function Addresses() {
     }
 
     try {
-      // Get Cart Items
+      // Get cart items
       const cartRes = await axios.get(
         `${import.meta.env.VITE_API_URL}/get-cart`,
         {
@@ -87,7 +88,7 @@ function Addresses() {
       }
 
       // ===============================
-      // ONLINE PAYMENT
+      // RAZORPAY PAYMENT
       // ===============================
       else if (paymentType === "RAZORPAY") {
         const { data } = await axios.post(
@@ -111,7 +112,9 @@ function Addresses() {
 
           handler: async function (response) {
             try {
-              await axios.post(
+              console.log("Payment Success:", response);
+
+              const orderRes = await axios.post(
                 `${import.meta.env.VITE_API_URL}/orders`,
                 {
                   products: items,
@@ -126,11 +129,13 @@ function Addresses() {
                 }
               );
 
+              console.log("Order Saved:", orderRes.data);
+
               alert("Payment Successful & Order Placed");
               navigate("/");
             } catch (err) {
-              console.log(err);
-              alert("Order saving failed after payment");
+              console.log("ORDER SAVE ERROR:", err.response?.data || err);
+              alert("Payment done, but order save failed");
             }
           },
 
@@ -203,11 +208,10 @@ function Addresses() {
 
       <br />
 
-      <button onClick={placeOrder}>
-        Place Order
-      </button>
+      <button onClick={placeOrder}>Place Order</button>
     </div>
   );
 }
 
 export default Addresses;
+
