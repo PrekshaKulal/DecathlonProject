@@ -25,6 +25,7 @@ const Razorpay = require("razorpay");
 const sgMail = require('@sendgrid/mail');
 const {CloudinaryStorage} =require("multer-storage-cloudinary")
 const {v2:cloudinary} =require("cloudinary")
+const PDFDocument = require("pdfkit-table");
 
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -134,23 +135,113 @@ app.post("/verify-otp", async (req, res) => {
   }
 });
 
-const sendOrderEmail = async (email, status, orderId, productName = "") => {
+const sendOrderEmail = async (email, status, order, pdfBuffer = null) => {
   try {
-    await sgMail.send({
+    const msg = {
       to: email,
       from: process.env.EMAIL_USER,
       subject: `Order Update - ${status}`,
+
       html: `
         <h2>Order Update</h2>
-        ${ productName ? `<p>Your item <b>${productName}</b> is now:</p>` : `<p>Your order <b>${orderId}</b> status is now:</p>` }
+        <p>Your order <b>${order._id}</b> status is now:</p>
         <h3>${status}</h3>
-        <p>Order ID: ${orderId}</p>
+        <p>Total Amount: ₹${order.totalAmount}</p>
         <p>Thank you for shopping with us.</p>
       `
-    });
+    };
+
+    if (pdfBuffer) {
+      msg.attachments = [
+        {
+          content: pdfBuffer.toString("base64"),
+          filename: `Invoice-${order._id}.pdf`,
+          type: "application/pdf",
+          disposition: "attachment"
+        }
+      ];
+    }
+
+    await sgMail.send(msg);
+
   } catch (err) {
-    console.log("Email error:", err.response?.body || err);
+    console.log(err.response?.body || err);
   }
+};
+const generateInvoicePDF = async (order) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let buffers = [];
+
+      const doc = new PDFDocument({
+        margin: 30,
+        size: "A4",
+      });
+
+      doc.on("data", buffers.push.bind(buffers));
+
+      doc.on("end", () => {
+        const pdfBuffer = Buffer.concat(buffers);
+        resolve(pdfBuffer);
+      });
+
+      // ==========================
+      // HEADER
+      // ==========================
+      doc.fontSize(20).text("SPORTS STORE INVOICE", {
+        align: "center",
+      });
+
+      doc.moveDown();
+
+      doc.fontSize(12).text(`Order ID: ${order._id}`);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`);
+      doc.text(`Payment Method: ${order.paymentMethod}`);
+      doc.moveDown();
+
+      // ==========================
+      // TABLE DATA
+      // ==========================
+      let rows = [];
+
+      for (let item of order.products) {
+        const product = await ProductModel.findById(item.productId);
+
+        const price = Number(product.productPrice);
+        const qty = Number(item.quantity);
+
+        const gst = price * 0.18;
+        const total = (price + gst) * qty;
+
+        rows.push([
+          product.productName,
+          qty,
+          `₹${price}`,
+          `₹${gst.toFixed(2)}`,
+          `₹${total.toFixed(2)}`
+        ]);
+      }
+
+      const table = {
+        headers: ["Product", "Qty", "Price", "GST 18%", "Total"],
+        rows: rows
+      };
+
+      await doc.table(table);
+
+      doc.moveDown();
+
+      doc.fontSize(14).text(
+        `Grand Total: ₹${order.totalAmount}`,
+        { align: "right" }
+      );
+
+      doc.end();
+
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 /*const GenerateBill = async (email, status, orderId,productName="",productPrice,quantity, paymentId,totalAmount) => {
   try {
@@ -420,7 +511,16 @@ app.post('/orders', authMiddleware, async (req, res) => {
     });
     await order.save();
     const user = await UserModel.findById(req.user.id);
-await sendOrderEmail(user.email, "PLACED", order._id);
+
+const pdfBuffer = await generateInvoicePDF(order);
+
+await sendOrderEmail(
+  user.email,
+  "PLACED",
+  order,
+  pdfBuffer
+);
+   
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
@@ -444,7 +544,7 @@ app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, r
 });
     await order.save();
     const user = await UserModel.findById(order.userId); 
-   await sendOrderEmail(user.email, "Cancelled", orderId); 
+   await sendOrderEmail(user.email, "Cancelled", order); 
     res.json({ success: true, message: "Item cancelled" });
   } catch (err) {
     res.status(500).json({ error: "Cancel failed" });
@@ -475,7 +575,7 @@ app.put("/admin/orders/:id", async (req, res) => {
     order.status = status;
     await order.save();
     const user = await UserModel.findById(order.userId);
-    await sendOrderEmail(user.email, status, order._id);
+    await sendOrderEmail(user.email, status, order);
     res.json({ success: true, message: "Status updated + email sent" });
   } catch (err) {
     console.log(err);
@@ -533,7 +633,7 @@ app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
     });
     await order.save();
     const user = await UserModel.findById(order.userId);
-  await sendOrderEmail(user.email, status, orderId);
+  await sendOrderEmail(user.email, status, order);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Update failed" });
