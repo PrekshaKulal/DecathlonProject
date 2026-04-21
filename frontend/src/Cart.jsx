@@ -168,10 +168,11 @@ products.forEach((product) => {
                     ))}
                     </tbody>
                     </table>
-                   <span className="total-amount">
-  Total Amount: Rs {(totalAmount + totalAmount * 0.18).toFixed(2)}
-</span>
-                    <br/><br/>
+                   <div className="total-amount">
+  <p>Subtotal: Rs {totalAmount.toFixed(2)}</p>
+  <p>GST (18%): Rs {(totalAmount * 0.18).toFixed(2)}</p>
+  <h3>Total Payable: Rs {(totalAmount * 1.18).toFixed(2)}</h3>
+</div>            <br/><br/>
                   <button className="place-order"  onClick={()=>navigate("/addresses")}>Place Order</button>
 
                    
