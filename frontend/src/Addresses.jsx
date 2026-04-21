@@ -78,13 +78,11 @@ const placeOrder = async () => {
     // =========================
     else if (paymentType === "RAZORPAY") {
 
-  const { data } = await axios.post(
-    `${import.meta.env.VITE_API_URL}/create-order`,
-    { amount: totalAmount },
-    {
-      headers: { Authorization: `Bearer ${token}` }
-    }
-  );
+  const { data } = await axios.post("/create-order", {
+   products: cartItems
+}, {
+ headers:{ Authorization:`Bearer ${token}` }
+})
 
   const options = {
     key: import.meta.env.VITE_RAZORPAY_KEY_ID,

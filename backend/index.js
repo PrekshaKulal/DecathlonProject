@@ -472,33 +472,70 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
 
 app.post("/create-order", authMiddleware, async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { products } = req.body; 
+    // products = [{productId, quantity}]
+
+    let subtotal = 0;
+
+    for (let item of products) {
+      const product = await ProductModel.findById(item.productId);
+
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      subtotal += Number(product.productPrice) * Number(item.quantity);
+    }
+
+    const gst = subtotal * 0.18;   // 18%
+    const finalAmount = subtotal + gst;
+
     const options = {
-      amount: amount * 100, 
+      amount: Math.round(finalAmount * 100), // paisa
       currency: "INR",
       receipt: "order_rcptid_" + Date.now(),
     };
-    const order = await razorpay.orders.create(options);
-    res.json(order);
+
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    res.json({
+      razorpayOrder,
+      subtotal,
+      gst,
+      finalAmount
+    });
+
   } catch (err) {
-    res.status(500).json(err);
+    console.log(err);
+    res.status(500).json({ error: "Payment order failed" });
   }
 });
 
 app.post('/orders', authMiddleware, async (req, res) => {
   try {
-    const { products, totalAmount, addressId ,paymentMethod,paymentId} = req.body;
+    const { products, totalAmount, addressId, paymentMethod, paymentId } = req.body;
+
+    // Check address
     const address = await AddressModel.findById(addressId);
     if (!address) {
       return res.status(400).json({ error: "Address not found" });
     }
-   const order = new OrderModel({
-  userId: req.user.id,
-  products: products.map(p => ({ ...p,status: "Placed" })),
-  totalAmount,
-  addressId,
-  paymentMethod,
-  paymentId,
+
+    // Create order
+    const order = new OrderModel({
+      userId: req.user.id,
+
+      products: products.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        status: "Placed"
+      })),
+
+      totalAmount,
+      addressId,
+      paymentMethod,
+      paymentId: paymentId || "",
+
       addressDetails: {
         Name: address.Name,
         HouseNo: address.HouseNo,
@@ -509,28 +546,43 @@ app.post('/orders', authMiddleware, async (req, res) => {
         Pincode: address.Pincode
       }
     });
+
     await order.save();
+
+    // Get user email
     const user = await UserModel.findById(req.user.id);
 
-const pdfBuffer = await generateInvoicePDF(order);
+    // Generate invoice PDF
+    const pdfBuffer = await generateInvoicePDF(order);
 
-await sendOrderEmail(
-  user.email,
-  "PLACED",
-  order,
-  pdfBuffer
-);
-   
+    // Send email
+    await sendOrderEmail(
+      user.email,
+      "PLACED",
+      order,
+      pdfBuffer
+    );
+
+    // Clear cart
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
     );
-    res.json({ success: true, message: "Order placed" });
+
+    res.json({
+      success: true,
+      message: "Order placed successfully"
+    });
+
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Order failed" });
+    console.log("ORDER ERROR:", err);
+    res.status(500).json({
+      error: "Order failed"
+    });
   }
 });
+
+
 app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, res) => {
   try {
     const { orderId, productId } = req.params;
