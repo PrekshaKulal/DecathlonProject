@@ -18,7 +18,7 @@ function Addresses() {
   const fetchAddresses = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/get-addresses`, {
-        headers: { Authorization: token }
+       headers: { Authorization: `Bearer ${token}` }
       });
       setAddresses(res.data);
       if (res.data.length > 0) {
@@ -77,45 +77,65 @@ const placeOrder = async () => {
     // RAZORPAY ORDER
     // =========================
     else if (paymentType === "RAZORPAY") {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/create-order`,
-        {
-          amount: totalAmount,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
 
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: data.amount,
-        currency: "INR",
-        name: "My Store",
-        order_id: data.id,
-        handler: async function (response) {
-          await axios.post(
-            `${import.meta.env.VITE_API_URL}/orders`,
-            {
-              products: items,
-              totalAmount,
-              addressId: selected,
-              paymentMethod: "RAZORPAY",
-              paymentId: response.razorpay_payment_id,
-            },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-
-          alert("Payment Successful & Order Placed");
-          navigate("/");
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL}/create-order`,
+    { amount: totalAmount },
+    {
+      headers: { Authorization: `Bearer ${token}` }
     }
+  );
+
+  const options = {
+    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+    amount: data.amount,
+    currency: "INR",
+    name: "My Store",
+    description: "Order Payment",
+    order_id: data.id,
+
+    handler: async function (response) {
+      try {
+        console.log("PAYMENT SUCCESS:", response);
+
+        const orderRes = await axios.post(
+          `${import.meta.env.VITE_API_URL}/orders`,
+          {
+            products: items,
+            totalAmount,
+            addressId: selected,
+            paymentMethod: "ONLINE",
+            paymentId: response.razorpay_payment_id
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        console.log("ORDER SAVED:", orderRes.data);
+
+        alert("Payment Successful & Order Placed");
+        navigate("/");
+
+      } catch (err) {
+        console.log("ORDER SAVE ERROR:", err.response?.data || err);
+        alert("Payment done, but order save failed");
+      }
+    },
+
+    modal: {
+      ondismiss: function () {
+        alert("Payment cancelled");
+      }
+    }
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.open();
+}
+   
   } catch (err) {
     console.log("ORDER ERROR:", err);
   }
