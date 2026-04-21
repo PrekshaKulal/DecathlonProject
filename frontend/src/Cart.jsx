@@ -168,7 +168,7 @@ products.forEach((product) => {
                     ))}
                     </tbody>
                     </table>
-                   <div className="total-amount">
+                   <div className="total-amount" style={{color:"black"}}>
   <p>Subtotal: Rs {totalAmount.toFixed(2)}</p>
   <p>GST (18%): Rs {(totalAmount * 0.18).toFixed(2)}</p>
   <h3>Total Payable: Rs {(totalAmount * 1.18).toFixed(2)}</h3>
