@@ -55,52 +55,57 @@ const placeOrder = async () => {
     // =========================
     // COD ORDER
     // =========================
-    if (paymentType === "COD") {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/orders`,
-        {
-          products: items,
-          totalAmount,
-          addressId: selected,
-          paymentMethod: "COD",
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+  if (paymentType === "COD") {
 
-      alert("COD Order placed successfully");
-      navigate("/");
+  const finalAmount = totalAmount + (totalAmount * 0.18);
+
+  await axios.post(
+    `${import.meta.env.VITE_API_URL}/orders`,
+    {
+      products: items,
+      totalAmount: finalAmount,
+      addressId: selected,
+      paymentMethod: "COD",
+    },
+    {
+      headers: { Authorization: `Bearer ${token}` },
     }
+  );
+
+  alert("COD Order placed successfully");
+  navigate("/");
+}
 
     // =========================
     // RAZORPAY ORDER
     // =========================
-    else if (paymentType === "RAZORPAY") {
+ else if (paymentType === "RAZORPAY") {
 
-  const { data } = await axios.post("/create-order", {
-   products: cartItems
-}, {
- headers:{ Authorization:`Bearer ${token}` }
-})
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL}/create-order`,
+    { products: items },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
 
   const options = {
     key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-    amount: data.amount,
+    amount: data.razorpayOrder.amount,
     currency: "INR",
     name: "My Store",
     description: "Order Payment",
-    order_id: data.id,
+    order_id: data.razorpayOrder.id,
 
     handler: async function (response) {
       try {
-        console.log("PAYMENT SUCCESS:", response);
-
-        const orderRes = await axios.post(
+        await axios.post(
           `${import.meta.env.VITE_API_URL}/orders`,
           {
             products: items,
-            totalAmount,
+            totalAmount: data.finalAmount,
             addressId: selected,
             paymentMethod: "ONLINE",
             paymentId: response.razorpay_payment_id
@@ -112,14 +117,12 @@ const placeOrder = async () => {
           }
         );
 
-        console.log("ORDER SAVED:", orderRes.data);
-
         alert("Payment Successful & Order Placed");
         navigate("/");
 
       } catch (err) {
-        console.log("ORDER SAVE ERROR:", err.response?.data || err);
-        alert("Payment done, but order save failed");
+        console.log(err);
+        alert("Payment done but order save failed");
       }
     },
 
