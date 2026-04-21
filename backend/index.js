@@ -552,16 +552,19 @@ app.post('/orders', authMiddleware, async (req, res) => {
     // Get user email
     const user = await UserModel.findById(req.user.id);
 
-    // Generate invoice PDF
-    const pdfBuffer = await generateInvoicePDF(order);
+  try {
+  const pdfBuffer = await generateInvoicePDF(order);
 
-    // Send email
-    await sendOrderEmail(
-      user.email,
-      "PLACED",
-      order,
-      pdfBuffer
-    );
+  await sendOrderEmail(
+    user.email,
+    "PLACED",
+    order,
+    pdfBuffer
+  );
+
+} catch (mailErr) {
+  console.log("EMAIL/PDF ERROR:", mailErr);
+}
 
     // Clear cart
     await CartModel.updateOne(
