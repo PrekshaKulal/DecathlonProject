@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ["COD", "RAZORPAY"],
+    enum: ["COD", "ONLINE"],
     default: "COD"
   },
   paymentId: String,
