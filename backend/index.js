@@ -172,47 +172,32 @@ const generateInvoicePDF = async (order) => {
   return new Promise(async (resolve, reject) => {
     try {
       let buffers = [];
-
       const doc = new PDFDocument({
         margin: 30,
         size: "A4",
       });
-
       doc.on("data", buffers.push.bind(buffers));
-
       doc.on("end", () => {
         const pdfBuffer = Buffer.concat(buffers);
         resolve(pdfBuffer);
       });
 
-      // ==========================
-      // HEADER
-      // ==========================
-      doc.fontSize(20).text("SPORTS STORE INVOICE", {
+      doc.fontSize(20).text("DECATHLON INVOICE", {
         align: "center",
       });
-
       doc.moveDown();
-
       doc.fontSize(12).text(`Order ID: ${order._id}`);
       doc.text(`Date: ${new Date().toLocaleDateString()}`);
       doc.text(`Payment Method: ${order.paymentMethod}`);
       doc.moveDown();
 
-      // ==========================
-      // TABLE DATA
-      // ==========================
       let rows = [];
-
       for (let item of order.products) {
         const product = await ProductModel.findById(item.productId);
-
         const price = Number(product.productPrice);
         const qty = Number(item.quantity);
-
         const gst = price * 0.18;
         const total = (price + gst) * qty;
-
         rows.push([
           product.productName,
           qty,
@@ -221,23 +206,17 @@ const generateInvoicePDF = async (order) => {
           `₹${total.toFixed(2)}`
         ]);
       }
-
       const table = {
         headers: ["Product", "Qty", "Price", "GST 18%", "Total"],
         rows: rows
       };
-
       await doc.table(table);
-
       doc.moveDown();
-
       doc.fontSize(14).text(
         `Grand Total: ₹${order.totalAmount}`,
         { align: "right" }
       );
-
       doc.end();
-
     } catch (err) {
       reject(err);
     }
@@ -474,37 +453,23 @@ app.post("/create-order", authMiddleware, async (req, res) => {
   try {
     const { products } = req.body; 
     // products = [{productId, quantity}]
-
     let subtotal = 0;
-
     for (let item of products) {
       const product = await ProductModel.findById(item.productId);
-
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
-
       subtotal += Number(product.productPrice) * Number(item.quantity);
     }
-
     const gst = subtotal * 0.18;   // 18%
     const finalAmount = subtotal + gst;
-
     const options = {
       amount: Math.round(finalAmount * 100), // paisa
       currency: "INR",
       receipt: "order_rcptid_" + Date.now(),
     };
-
     const razorpayOrder = await razorpay.orders.create(options);
-
-    res.json({
-      razorpayOrder,
-      subtotal,
-      gst,
-      finalAmount
-    });
-
+    res.json({ razorpayOrder,subtotal,gst,finalAmount});
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Payment order failed" });
@@ -514,14 +479,10 @@ app.post("/create-order", authMiddleware, async (req, res) => {
 app.post('/orders', authMiddleware, async (req, res) => {
   try {
     const { products, totalAmount, addressId, paymentMethod, paymentId } = req.body;
-
-    // Check address
     const address = await AddressModel.findById(addressId);
     if (!address) {
       return res.status(400).json({ error: "Address not found" });
     }
-
-    // Create order
     const order = new OrderModel({
       userId: req.user.id,
 
@@ -530,12 +491,10 @@ app.post('/orders', authMiddleware, async (req, res) => {
         quantity: item.quantity,
         status: "Placed"
       })),
-
       totalAmount,
       addressId,
       paymentMethod,
       paymentId: paymentId || "",
-
       addressDetails: {
         Name: address.Name,
         HouseNo: address.HouseNo,
@@ -546,37 +505,19 @@ app.post('/orders', authMiddleware, async (req, res) => {
         Pincode: address.Pincode
       }
     });
-
     await order.save();
-
-    // Get user email
     const user = await UserModel.findById(req.user.id);
-
   try {
   const pdfBuffer = await generateInvoicePDF(order);
-
-  await sendOrderEmail(
-    user.email,
-    "PLACED",
-    order,
-    pdfBuffer
-  );
-
+  await sendOrderEmail(user.email, "PLACED",order, pdfBuffer);
 } catch (mailErr) {
   console.log("EMAIL/PDF ERROR:", mailErr);
 }
-
-    // Clear cart
     await CartModel.updateOne(
       { userId: req.user.id },
       { $set: { items: [] } }
     );
-
-    res.json({
-      success: true,
-      message: "Order placed successfully"
-    });
-
+    res.json({success: true,message: "Order placed successfully"});
   } catch (err) {
     console.log("ORDER ERROR:", err);
     res.status(500).json({

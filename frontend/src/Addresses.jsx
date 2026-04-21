@@ -33,34 +33,20 @@ const placeOrder = async () => {
     alert("Select address");
     return;
   }
-
   try {
-    const cartRes = await axios.get(
-      `${import.meta.env.VITE_API_URL}/get-cart`,
+    const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/get-cart`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
     const items = cartRes.data.items;
-
     let totalAmount = 0;
-
     for (let item of items) {
-      const productRes = await axios.get(
-        `${import.meta.env.VITE_API_URL}/products/${item.productId}`
-      );
-
+      const productRes = await axios.get(`${import.meta.env.VITE_API_URL}/products/${item.productId}`);
       totalAmount += productRes.data.productPrice * item.quantity;
     }
 
-    // =========================
-    // COD ORDER
-    // =========================
   if (paymentType === "COD") {
-
   const finalAmount = totalAmount + (totalAmount * 0.18);
-
-  await axios.post(
-    `${import.meta.env.VITE_API_URL}/orders`,
+  await axios.post(`${import.meta.env.VITE_API_URL}/orders`,
     {
       products: items,
       totalAmount: finalAmount,
@@ -71,18 +57,11 @@ const placeOrder = async () => {
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-
   alert("COD Order placed successfully");
   navigate("/");
 }
-
-    // =========================
-    // RAZORPAY ORDER
-    // =========================
  else if (paymentType === "RAZORPAY") {
-
-  const { data } = await axios.post(
-    `${import.meta.env.VITE_API_URL}/create-order`,
+  const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/create-order`,
     { products: items },
     {
       headers: {
@@ -101,8 +80,7 @@ const placeOrder = async () => {
 
     handler: async function (response) {
       try {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/orders`,
+        await axios.post(`${import.meta.env.VITE_API_URL}/orders`,
           {
             products: items,
             totalAmount: data.finalAmount,
@@ -116,27 +94,22 @@ const placeOrder = async () => {
             }
           }
         );
-
         alert("Payment Successful & Order Placed");
         navigate("/");
-
       } catch (err) {
         console.log(err);
         alert("Payment done but order save failed");
       }
     },
-
     modal: {
       ondismiss: function () {
         alert("Payment cancelled");
       }
     }
   };
-
   const rzp = new window.Razorpay(options);
   rzp.open();
 }
-   
   } catch (err) {
     console.log("ORDER ERROR:", err);
   }
