@@ -16,9 +16,8 @@ const ProductModel=require('./models/Product');
 const OrderModel  =require('./models/Order');
 const CartModel = require("./models/Cart");
 const AddressModel = require("./models/Address");
-const PDFDocument = require("pdfkit");
-const fs=require("fs")
-const path=require("path")
+//const fs=require("fs")
+//const path=require("path")
 const jwt = require("jsonwebtoken");
 const dns = require("dns");
 require('dotenv').config();
@@ -191,96 +190,7 @@ const sendOrderEmail = async (email, status, orderId, productName = "") => {
     console.log("Email error:", err.response?.body || err);
   }
 };*/
-const generateGSTBill = async (order, userEmail) => {
-  return new Promise((resolve, reject) => {
 
-    const fileName = `Invoice-${order._id}.pdf`;
-    const filePath = path.join(__dirname, fileName);
-
-    const doc = new PDFDocument({ margin: 50 });
-    const stream = fs.createWriteStream(filePath);
-
-    doc.pipe(stream);
-
-    // Header
-    doc.fontSize(22).text("TAX INVOICE", { align: "center" });
-    doc.moveDown();
-
-    doc.fontSize(12).text(`Invoice No: ${order._id}`);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`);
-    doc.text(`Customer Email: ${userEmail}`);
-    doc.moveDown();
-
-    doc.text("Billing Address:");
-    doc.text(order.addressDetails.Name);
-    doc.text(order.addressDetails.HouseNo + ", " + order.addressDetails.Street);
-    doc.text(order.addressDetails.City + ", " + order.addressDetails.State);
-    doc.text("Pincode: " + order.addressDetails.Pincode);
-
-    doc.moveDown();
-
-    // Table Header
-    doc.text("-----------------------------------------------------");
-    doc.text("Product       Qty       Price       Total");
-    doc.text("-----------------------------------------------------");
-
-    let subtotal = 0;
-
-    order.products.forEach(item => {
-      const total = item.productPrice * item.quantity;
-      subtotal += total;
-
-      doc.text(
-        `${item.productName}   ${item.quantity}   ₹${item.productPrice}   ₹${total}`
-      );
-    });
-const gst = order.gst;
-const grandTotal = order.totalAmount;
-
-    doc.moveDown();
-    doc.text("-----------------------------------------------------");
-    doc.text(`Subtotal: ₹${subtotal}`);
-    doc.text(`GST (18%): ₹${gst.toFixed(2)}`);
-    doc.text(`Grand Total: ₹${grandTotal.toFixed(2)}`);
-    doc.moveDown();
-
-    doc.text("Thank you for shopping with us!", {
-      align: "center"
-    });
-
-    doc.end();
-
-    stream.on("finish", () => resolve(filePath));
-    stream.on("error", reject);
-
-  });
-};
-
-const sendInvoiceMail = async (email, filePath, orderId) => {
-  try {
-    await sgMail.send({
-      to: email,
-      from: process.env.EMAIL_USER,
-      subject: "Your GST Invoice",
-      text: "Please find attached invoice.",
-      html: `<h2>Your order invoice</h2>
-             <p>Order ID: ${orderId}</p>
-             <p>Invoice attached below.</p>`,
-
-      attachments: [
-        {
-          content: fs.readFileSync(filePath).toString("base64"),
-          filename: `Invoice-${orderId}.pdf`,
-          type: "application/pdf",
-          disposition: "attachment"
-        }
-      ]
-    });
-
-  } catch (err) {
-    console.log(err);
-  }
-};
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -468,157 +378,48 @@ app.post('/get-cart-items',authMiddleware, async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 app.post("/create-order", authMiddleware, async (req, res) => {
   try {
-    const { products } = req.body;
-
-    if (!products || products.length === 0) {
-      return res.status(400).json({ error: "Products missing" });
-    }
-
-    let subtotal = 0;
-
-    for (const item of products) {
-      if (!item.productId || !item.quantity) continue;
-
-      const dbProduct = await ProductModel.findById(item.productId);
-
-      if (!dbProduct) continue;
-
-      subtotal += Number(dbProduct.productPrice) * Number(item.quantity);
-    }
-
-    if (subtotal <= 0) {
-      return res.status(400).json({ error: "Invalid cart data" });
-    }
-
-    const gst = subtotal * 0.18;
-    const finalAmount = subtotal + gst;
-
-    const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(finalAmount * 100),
-      currency: "INR",
-      receipt: "receipt_" + Date.now(),
-    });
-
-    res.json({
-      razorpayOrder,
-      subtotal,
-      gst,
-      finalAmount
-    });
-
-  } catch (err) {
-    console.log("CREATE ORDER ERROR:", err);
-    res.status(500).json({ error: "Failed to create order" });
-  }
-});
-/*
-app.post("/create-order", authMiddleware, async (req, res) => {
-  try {
-    const { products } = req.body;
-
-    let subtotal = 0;
-
-    for (const item of products) {
-      const dbProduct = await ProductModel.findById(item.productId);
-      if (!dbProduct) continue;
-
-      subtotal += Number(dbProduct.productPrice) * Number(item.quantity);
-    }
-
-    const gst = subtotal * 0.18;
-    const finalAmount = subtotal + gst;
-
+    const { amount } = req.body;
     const options = {
-      amount: Math.round(finalAmount * 100),
+      amount: amount * 100, 
       currency: "INR",
-      receipt: "order_" + Date.now()
+      receipt: "order_rcptid_" + Date.now(),
     };
-
     const order = await razorpay.orders.create(options);
-
-    res.json({
-      razorpayOrder: order,
-      subtotal,
-      gst,
-      finalAmount
-    });
-
+    res.json(order);
   } catch (err) {
     res.status(500).json(err);
   }
 });
-*/
+
 app.post('/orders', authMiddleware, async (req, res) => {
   try {
-    const { products, addressId ,paymentMethod,paymentId} = req.body;
+    const { products, totalAmount, addressId ,paymentMethod,paymentId} = req.body;
     const address = await AddressModel.findById(addressId);
     if (!address) {
       return res.status(400).json({ error: "Address not found" });
     }
-    const detailedProducts = [];
-
-let subtotal = 0;
-
-for (const item of products) {
-  const dbProduct = await ProductModel.findById(item.productId);
-
-  if (!dbProduct) continue;
-
-  const price = Number(dbProduct.productPrice);
-  const qty = Number(item.quantity);
-
-  const total = price * qty;
-
-  subtotal += total;
-
-  detailedProducts.push({
-    productId: dbProduct._id,
-    productName: dbProduct.productName,
-    productPrice: price,
-    quantity: qty,
-    total,
-    status: "Placed"
-  });
-}
-const gst = subtotal * 0.18;
-const finalAmount = subtotal + gst;
-
-const order = new OrderModel({
+   const order = new OrderModel({
   userId: req.user.id,
-
-  products: detailedProducts,   // ✅ USE THIS
-
-  subtotal: subtotal,
-  gst: gst,
-  totalAmount: finalAmount,
-
+  products: products.map(p => ({ ...p,status: "Placed" })),
+  totalAmount,
   addressId,
   paymentMethod,
   paymentId,
-
-  addressDetails: {
-    Name: address.Name,
-    HouseNo: address.HouseNo,
-    Street: address.Street,
-    City: address.City,
-    District: address.District,
-    State: address.State,
-    Pincode: address.Pincode
-  }
-});
-   
+      addressDetails: {
+        Name: address.Name,
+        HouseNo: address.HouseNo,
+        Street: address.Street,
+        City: address.City,
+        District: address.District,
+        State: address.State,
+        Pincode: address.Pincode
+      }
+    });
     await order.save();
     const user = await UserModel.findById(req.user.id);
-
-const pdfPath = await generateGSTBill(order, user.email);
-
-await sendInvoiceMail(user.email, pdfPath, order._id);
-
-// delete local pdf after sending
-fs.unlinkSync(pdfPath);
-  
    // const orders=await OrderModel.findById(req.order.id);
 await sendOrderEmail(user.email, "PLACED", order._id);
 /*const GenerateBill = async (orderId,status,paymentId,totalAmount) => {
