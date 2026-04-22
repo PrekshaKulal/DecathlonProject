@@ -182,7 +182,7 @@ const generateInvoicePDF = async (order) => {
         resolve(pdfBuffer);
       });
 
-      doc.fontSize(20).text("DECATHLON INVOICE", {
+      doc.fontSize(20).text("PAYMENT RECEIPT", {
         align: "center",
       });
       doc.moveDown();
