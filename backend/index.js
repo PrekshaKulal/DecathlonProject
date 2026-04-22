@@ -201,9 +201,9 @@ const generateInvoicePDF = async (order) => {
         rows.push([
           product.productName,
           qty,
-          `₹${price}`,
-          `₹${gst.toFixed(2)}`,
-          `₹${total.toFixed(2)}`
+          `Rs${price}`,
+          `Rs${gst.toFixed(2)}`,
+          `Rs${total.toFixed(2)}`
         ]);
       }
       const table = {
