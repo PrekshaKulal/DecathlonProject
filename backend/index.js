@@ -201,9 +201,9 @@ const generateInvoicePDF = async (order) => {
         rows.push([
           product.productName,
           qty,
-          `Rs${price}`,
-          `Rs${gst.toFixed(2)}`,
-          `Rs${total.toFixed(2)}`
+          `Rs ${price}`,
+          `Rs ${gst.toFixed(2)}`,
+          `Rs ${total.toFixed(2)}`
         ]);
       }
       const table = {
@@ -213,7 +213,7 @@ const generateInvoicePDF = async (order) => {
       await doc.table(table);
       doc.moveDown();
       doc.fontSize(14).text(
-        `Grand Total: ₹${order.totalAmount}`,
+        `Grand Total: Rs ${order.totalAmount}`,
         { align: "right" }
       );
       doc.end();
