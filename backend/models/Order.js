@@ -5,6 +5,9 @@ const orderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "users"
   },
+  email:{ type: mongoose.Schema.Types.ObjectId,
+    ref: "users"
+  },
  products: [{
   productId: {
     type: mongoose.Schema.Types.ObjectId,

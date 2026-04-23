@@ -188,7 +188,8 @@ const generateInvoicePDF = async (order) => {
       doc.moveDown();
       doc.text(`Date: ${new Date().toLocaleDateString()}`);
       doc.fontSize(12).text(`Order ID: ${order._id}`);
-      doc.fontSize(12).texr( `Name : ${order.addressDetails.Name}`)
+      doc.fontSize(12).text(`Email Id : ${email}`)
+      doc.fontSize(12).text( `Name : ${order.addressDetails.Name}`)
       doc.fontSize(12).text(`Address Details: ${order.addressDetails}`);
       
       doc.text(`Payment Method: ${order.paymentMethod}`);
@@ -490,7 +491,7 @@ app.post('/orders', authMiddleware, async (req, res) => {
     }
     const order = new OrderModel({
       userId: req.user.id,
-
+      email:req.user.email,
       products: products.map(item => ({
         productId: item.productId,
         quantity: item.quantity,
