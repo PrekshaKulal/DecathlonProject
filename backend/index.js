@@ -190,11 +190,11 @@ const generateInvoicePDF = async (order) => {
       doc.text(" ");
       doc.fontSize(12).text(`Order ID: ${order._id}`);
       doc.fontSize(12).text(`Email Id : ${order.email}`)
-       doc.text(" ");
+      // doc.text(" ");
       doc.fontSize(12).text( `Name : ${order.addressDetails.Name}`)
-       doc.text(" ");
+     //  doc.text(" ");
       doc.text( `Address: ${order.addressDetails.HouseNo}, ${order.addressDetails.Street}, ${order.addressDetails.City},${order.addressDetails.District},${order.addressDetails.State},${order.addressDetails.Pincode}`);
-        doc.text(" ");
+      //  doc.text(" ");
       doc.text(`Payment Method: ${order.paymentMethod}`);
       doc.moveDown();
 
