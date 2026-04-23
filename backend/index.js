@@ -176,6 +176,7 @@ const generateInvoicePDF = async (order) => {
         margin: 30,
         size: "A4",
       });
+      
       doc.on("data", buffers.push.bind(buffers));
       doc.on("end", () => {
         const pdfBuffer = Buffer.concat(buffers);
@@ -187,6 +188,7 @@ const generateInvoicePDF = async (order) => {
       });
       doc.moveDown();
       doc.fontSize(12).text(`Order ID: ${order._id}`);
+      doc.fontSize(12).text(`Emaid Id: ${order.email}` );
       doc.fontSize(12).text(`Address Details: ${order.addressDetails}`);
       doc.text(`Date: ${new Date().toLocaleDateString()}`);
       doc.text(`Payment Method: ${order.paymentMethod}`);
@@ -488,7 +490,7 @@ app.post('/orders', authMiddleware, async (req, res) => {
     }
     const order = new OrderModel({
       userId: req.user.id,
-
+emailId:req.user.email,
       products: products.map(item => ({
         productId: item.productId,
         quantity: item.quantity,
