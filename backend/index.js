@@ -198,13 +198,14 @@ const generateInvoicePDF = async (order) => {
         const qty = Number(item.quantity);
         const gst = price * 0.18;
         const total = (price + gst) * qty;
+        const address= await OrderModel.findById(order._id);
         rows.push([
           product.productName,
           qty,
           `Rs ${price}`,
           `Rs ${gst.toFixed(2)}`,
           `Rs ${total.toFixed(2)}`,
-          addressDetails
+          address.addressDetails
         ]);
       }
       const table = {
