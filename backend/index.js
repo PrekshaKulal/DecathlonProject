@@ -186,7 +186,7 @@ const generateInvoicePDF = async (order) => {
         align: "center",
       });
       doc.moveDown();
-      doc.fontSize(12).text(`Date: ${new Date().toLocaleDateString()}`);
+      doc.fontSize(12).text(`Date: ${new Date().toLocaleDateString()}`,{align:"right"});
       doc.text(" ");
       doc.fontSize(12).text(`Order ID: ${order._id}`);
       doc.fontSize(12).text(`Email Id : ${order.email}`)
