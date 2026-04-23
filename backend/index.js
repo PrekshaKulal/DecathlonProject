@@ -181,55 +181,99 @@ const generateInvoicePDF = async (order) => {
         const pdfBuffer = Buffer.concat(buffers);
         resolve(pdfBuffer);
       });
-doc.image('decathlon.jpeg', {
-   fit: [250, 300],
-   align: 'left'
-});
+      doc.image("decathlon.jpeg", 30, 20, {
+        fit: [140, 80],
+      });
 
-     /* doc.fontSize(20).text("PAYMENT RECEIPT", {
-        align: "center",
-      });*/
+      doc.fontSize(20).font("Helvetica-Bold").text("OFFICIAL RECEIPT", 0, 40, {align: "center",});
+      doc.moveDown(4);
+  
+      doc.fontSize(10).font("Helvetica").text("Decathlon India Pvt Ltd").text("Corporate Office:").text("Bangalore, Karnataka, India").text("Email: support@decathlon.com") .text("Phone: +91 9876543210");
       doc.moveDown();
-      doc.fontSize(12).text(`Date: ${new Date().toLocaleDateString()}`,{align:"right"});
-    
-      doc.fontSize(12).text(`Order ID: ${order._id}`);
-      doc.fontSize(12).text(`Email Id : ${order.email}`)
-      // doc.text(" ");
-      doc.fontSize(12).text( `Name : ${order.addressDetails.Name}`)
-     //  doc.text(" ");
-      doc.text( `Address: ${order.addressDetails.HouseNo}, ${order.addressDetails.Street}, ${order.addressDetails.City},${order.addressDetails.District},${order.addressDetails.State},${order.addressDetails.Pincode}`);
-      //  doc.text(" ");
-      doc.text(`Payment Method: ${order.paymentMethod}`);
+      doc
+        .fontSize(11)
+        .text(`Invoice #: INV-${Date.now()}-${order._id.toString().slice(-5)}`)
+        .text(`Order ID: ${order._id}`)
+        .text(`Date: ${new Date().toLocaleDateString("en-IN")}`)
+        .text(`Payment: ${order.paymentMethod}`)
+        .text(`Status: ${order.status || "Placed"}`)
+        .text(`Shipping: Standard Delivery`)
+        .text(`Estimated: 3-5 Days`)
+        .text(`Shipping Cost: Free`);
       doc.moveDown();
-
-      let rows = [];
+      doc.font("Helvetica-Bold").text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(`${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
+      doc.moveDown();
+       let rows = [];
+      let taxableSubtotal = 0;
+      let totalTax = 0;
       for (let item of order.products) {
         const product = await ProductModel.findById(item.productId);
-        const price = Number(product.productPrice);
         const qty = Number(item.quantity);
-        const gst = price * 0.18;
-        const total = (price + gst) * qty;
-       
+        const price = Number(product.productPrice);
+        const total = price * qty;
+        const base = total / 1.18;
+        const gst = total - base;
+        
+
+        taxableSubtotal += base;
+        totalTax += gst;
+
         rows.push([
           product.productName,
           qty,
-          `Rs ${price}`,
-          `Rs ${gst.toFixed(2)}`,
-          `Rs ${total.toFixed(2)}`,
-          
+          `₹${price.toFixed(2)}`,
+          `₹${base.toFixed(2)}`,
+         
+          `₹${total.toFixed(2)}`
         ]);
       }
+
       const table = {
-        headers: ["Product", "Qty", "Price", "GST 18%", "Total"],
+        headers: [
+          "Item",
+          "Qty",
+          "Price",
+          "Base",
+         
+          "Total"
+        ],
         rows: rows
       };
+
       await doc.table(table);
+
       doc.moveDown();
-      doc.fontSize(14).text(
-        `Grand Total: Rs ${order.totalAmount}`,
-        { align: "right" }
-      );
+
+    
+      doc
+        .font("Helvetica")
+        .text(`Taxable Subtotal: ₹${taxableSubtotal.toFixed(2)}`, {
+          align: "right",
+        })
+        .text(`Total Tax (GST 18%): ₹${totalTax.toFixed(2)}`, {
+          align: "right",
+        })
+        .text(`Shipping: FREE`, {
+          align: "right",
+        })
+        .font("Helvetica-Bold")
+        .fontSize(14)
+        .text(`Grand Total: ₹${Number(order.totalAmount).toFixed(2)}`, {
+          align: "right",
+        });
+
+      doc.moveDown(2);
+
+     
+      doc
+        .font("Helvetica")
+        .fontSize(11)
+        .text("Thank you for shopping with Decathlon!", {
+          align: "center",
+        });
+
       doc.end();
+
     } catch (err) {
       reject(err);
     }
