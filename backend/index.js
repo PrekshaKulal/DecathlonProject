@@ -181,9 +181,8 @@ const generateInvoicePDF = async (order) => {
         const pdfBuffer = Buffer.concat(buffers);
         resolve(pdfBuffer);
       });
-      doc.image("decathlon.jpeg", 30, 20, {
-        fit: [140, 80],
-      });
+     doc.fontSize(20).text("DECATHLON");
+     doc.moveDown();
 
       doc.fontSize(20).font("Helvetica-Bold").text("OFFICIAL RECEIPT", 0, 40, {align: "center",});
       doc.moveDown(4);
