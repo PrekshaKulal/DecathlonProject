@@ -181,13 +181,17 @@ const generateInvoicePDF = async (order) => {
         const pdfBuffer = Buffer.concat(buffers);
         resolve(pdfBuffer);
       });
+doc.image('decathlon.jpeg', {
+   fit: [250, 300],
+   align: 'left'
+});
 
-      doc.fontSize(20).text("PAYMENT RECEIPT", {
+     /* doc.fontSize(20).text("PAYMENT RECEIPT", {
         align: "center",
-      });
+      });*/
       doc.moveDown();
       doc.fontSize(12).text(`Date: ${new Date().toLocaleDateString()}`,{align:"right"});
-      doc.text(" ");
+    
       doc.fontSize(12).text(`Order ID: ${order._id}`);
       doc.fontSize(12).text(`Email Id : ${order.email}`)
       // doc.text(" ");
