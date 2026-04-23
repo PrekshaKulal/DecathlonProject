@@ -181,26 +181,24 @@ const generateInvoicePDF = async (order) => {
         const pdfBuffer = Buffer.concat(buffers);
         resolve(pdfBuffer);
       });
-     doc.fontSize(20).text("DECATHLON");
-     doc.moveDown();
 
-      doc.fontSize(20).font("Helvetica-Bold").text("OFFICIAL RECEIPT", 0, 40, {align: "center",});
-      doc.moveDown(4);
+      doc.fontSize(20).text("OFFICIAL RECEIPT", {align: "center",});
+      doc.moveDown(2);
   
-      doc.fontSize(10).font("Helvetica").text("Decathlon India Pvt Ltd",{align:"right"}).text("Corporate Office:",{align:"right"}).text("Bangalore, Karnataka, India",{align:"right"}).text("Email: decathlon.1903@gmail.com",{align:"right"}) .text("Phone: +91 9876543210",{align:"right"});
-      doc.moveDown();
+      doc.fontSize(10).text("Decathlon India Pvt Ltd",{align:"right"}).text("Corporate Office:",{align:"right"}).text("Bangalore, Karnataka, India",{align:"right"}).text("Email: decathlon.1903@gmail.com",{align:"right"}) .text("Phone: +91 9876543210",{align:"right"});
+      
       doc
         .fontSize(11)
-        .text(`Invoice #: INV-${Date.now()}-${order._id.toString().slice(-5)}`)
-        .text(`Order ID: ${order._id}`)
-        .text(`Date: ${new Date().toLocaleDateString("en-IN")}`)
-        .text(`Payment: ${order.paymentMethod}`)
-        .text(`Status: ${order.status || "Placed"}`)
-        .text(`Shipping: Standard Delivery`)
-        .text(`Estimated: 3-5 Days`)
-        .text(`Shipping Cost: Free`);
+        .text(`Invoice #: INV-${Date.now()}-${order._id.toString().slice(-5)}`,{align:"left"})
+        .text(`Order ID: ${order._id}`,{align:"left"})
+        .text(`Date: ${new Date().toLocaleDateString("en-IN")}`,{align:"left"})
+        .text(`Payment: ${order.paymentMethod}`,{align:"left"})
+        .text(`Status: ${order.status || "Placed"}`,{align:"left"})
+        .text(`Shipping: Standard Delivery`,{align:"left"})
+        .text(`Estimated: 3-5 Days`,{align:"left"})
+        .text(`Shipping Cost: Free`,{align:"left"});
       doc.moveDown();
-      doc.font("Helvetica-Bold").text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(`${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
+      doc.text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(`${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
       doc.moveDown();
        let rows = [];
       let taxableSubtotal = 0;
