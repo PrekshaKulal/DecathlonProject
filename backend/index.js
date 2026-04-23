@@ -188,9 +188,9 @@ const generateInvoicePDF = async (order) => {
       doc.moveDown();
       doc.text(`Date: ${new Date().toLocaleDateString()}`);
       doc.fontSize(12).text(`Order ID: ${order._id}`);
-      doc.fontSize(12).text(`Email Id : ${email}`)
+      doc.fontSize(12).text(`Email Id : ${order.email}`)
       doc.fontSize(12).text( `Name : ${order.addressDetails.Name}`)
-      doc.fontSize(12).text(`Address Details: ${order.addressDetails}`);
+      doc.text( `Address: ${order.addressDetails.HouseNo}, ${order.addressDetails.Street}, ${order.addressDetails.City}`);
       
       doc.text(`Payment Method: ${order.paymentMethod}`);
       doc.moveDown();
