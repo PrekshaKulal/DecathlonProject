@@ -187,7 +187,7 @@ const generateInvoicePDF = async (order) => {
       doc.fontSize(20).font("Helvetica-Bold").text("OFFICIAL RECEIPT", 0, 40, {align: "center",});
       doc.moveDown(4);
   
-      doc.fontSize(10).font("Helvetica").text("Decathlon India Pvt Ltd").text("Corporate Office:").text("Bangalore, Karnataka, India").text("Email: support@decathlon.com") .text("Phone: +91 9876543210");
+      doc.fontSize(10).font("Helvetica").text("Decathlon India Pvt Ltd",{align:"right"}).text("Corporate Office:",{align:"right"}).text("Bangalore, Karnataka, India",{align:"right"}).text("Email: decathlon.1903@gmail.com",{align:"right"}) .text("Phone: +91 9876543210",{align:"right"});
       doc.moveDown();
       doc
         .fontSize(11)
