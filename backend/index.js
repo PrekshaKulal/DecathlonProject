@@ -203,7 +203,8 @@ const generateInvoicePDF = async (order) => {
           qty,
           `Rs ${price}`,
           `Rs ${gst.toFixed(2)}`,
-          `Rs ${total.toFixed(2)}`
+          `Rs ${total.toFixed(2)}`,
+          addressDetails
         ]);
       }
       const table = {
