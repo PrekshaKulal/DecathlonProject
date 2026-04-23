@@ -182,7 +182,7 @@ const generateInvoicePDF = async (order) => {
         resolve(pdfBuffer);
       });
 
-      doc.fontSize(20).text("OFFICIAL RECEIPT", {align: "center",});
+      doc.fontSize(20).text("PAYMENT RECEIPT", {align: "center",});
       doc.moveDown(2);
   
       doc.fontSize(10).text("Decathlon India Pvt Ltd",{align:"right"}).text("Corporate Office:",{align:"right"}).text("Bangalore, Karnataka, India",{align:"right"}).text("Email: decathlon.1903@gmail.com",{align:"right"}) .text("Phone: +91 9876543210",{align:"right"});
@@ -218,10 +218,10 @@ const generateInvoicePDF = async (order) => {
         rows.push([
           product.productName,
           qty,
-          `₹${price.toFixed(2)}`,
-          `₹${base.toFixed(2)}`,
+          `Rs ${price.toFixed(2)}`,
+          `Rs ${base.toFixed(2)}`,
          
-          `₹${total.toFixed(2)}`
+          `Rs ${total.toFixed(2)}`
         ]);
       }
 
@@ -244,18 +244,16 @@ const generateInvoicePDF = async (order) => {
     
       doc
         .font("Helvetica")
-        .text(`Taxable Subtotal: ₹${taxableSubtotal.toFixed(2)}`, {
+        .text(`Taxable Subtotal: Rs ${taxableSubtotal.toFixed(2)}`, {
           align: "right",
         })
-        .text(`Total Tax (GST 18%): ₹${totalTax.toFixed(2)}`, {
+        .text(`Total Tax (GST 18%): Rs ${totalTax.toFixed(2)}`, {
           align: "right",
         })
-        .text(`Shipping: FREE`, {
-          align: "right",
-        })
+      
         .font("Helvetica-Bold")
         .fontSize(14)
-        .text(`Grand Total: ₹${Number(order.totalAmount).toFixed(2)}`, {
+        .text(`Grand Total: Rs ${Number(order.totalAmount).toFixed(2)}`, {
           align: "right",
         });
 
