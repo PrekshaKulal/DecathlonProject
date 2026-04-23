@@ -187,6 +187,7 @@ const generateInvoicePDF = async (order) => {
       });
       doc.moveDown();
       doc.fontSize(12).text(`Order ID: ${order._id}`);
+      doc.fontSize(12).text(`Address Details: ${order.addressDetails}`);
       doc.text(`Date: ${new Date().toLocaleDateString()}`);
       doc.text(`Payment Method: ${order.paymentMethod}`);
       doc.moveDown();
@@ -198,14 +199,14 @@ const generateInvoicePDF = async (order) => {
         const qty = Number(item.quantity);
         const gst = price * 0.18;
         const total = (price + gst) * qty;
-        const address= await OrderModel.findById(order._id);
+       
         rows.push([
           product.productName,
           qty,
           `Rs ${price}`,
           `Rs ${gst.toFixed(2)}`,
           `Rs ${total.toFixed(2)}`,
-          address.addressDetails
+          
         ]);
       }
       const table = {
