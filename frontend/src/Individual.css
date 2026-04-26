@@ -21,11 +21,12 @@ body {
 }
 .price {
     font-size: 20px;
-    color: green;
+    color: blue;
     margin: 10px 0;
     text-align: center;
 }
 .description {
+    font-weight: bold;
     color: #555;
     line-height: 1.5;
     text-align: center;
