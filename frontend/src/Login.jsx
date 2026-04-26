@@ -35,6 +35,7 @@ function Login() {
           <span>Back</span>
         </div>
         <img src="https://login.decathlon.net/assets/decathlon-logo-vp-DDH3S1xy.svg" alt="logo" className="header-logo"/>
+         <button className="admin-login-btn"  style={{color:'black', background:'lightgray'}} onClick={() => navigate("/admin-login")}>Admin Login</button>
       </header>
       <div className="loginpage">
     <h2>Login</h2>
