@@ -708,6 +708,19 @@ app.get("/products/:id", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/my-profile", authMiddleware, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.user.id);
+    const addresses = await AddressModel.find({ userId: req.user.id });
+
+    res.json({
+      email: user.email,
+      addressCount: addresses.length
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed" });
+  }
+});
 
 
 

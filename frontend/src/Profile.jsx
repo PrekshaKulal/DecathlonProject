@@ -1,9 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./Profile.css";
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const [user, setUser] = useState({
+    email: "",
+    addressCount: 0
+  });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/my-profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setUser(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -14,46 +42,18 @@ function Profile() {
     <div className="profile-page">
       <div className="profile-card">
 
-        <div className="profile-top">
-          <div className="profile-avatar">P</div>
-
-          <div>
-            <h2>Hello, User 👋</h2>
-            <p>Welcome back to your account</p>
-          </div>
-        </div>
+        <h2>My Profile</h2>
 
         <div className="profile-section">
-          <h3>Personal Details</h3>
-
-          <p><strong>Name:</strong> User Name</p>
-          <p><strong>Email:</strong> user@gmail.com</p>
-          <p><strong>Phone:</strong> 9876543210</p>
-
-          <button>Edit Profile</button>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Saved Addresses:</strong> {user.addressCount}</p>
         </div>
 
-        <div className="profile-section">
-          <h3>Saved Addresses</h3>
-
-          <p>Manage your delivery addresses easily.</p>
-
+        <div className="profile-buttons">
           <button onClick={() => navigate("/address")}>
             Manage Addresses
           </button>
-        </div>
 
-        <div className="profile-section">
-          <h3>Wishlist</h3>
-
-          <p>Products you liked will appear here.</p>
-
-          <button onClick={() => navigate("/wishlist")}>
-            View Wishlist
-          </button>
-        </div>
-
-        <div className="profile-section logout-box">
           <button className="logout-btn" onClick={handleLogout}>
             Logout
           </button>
