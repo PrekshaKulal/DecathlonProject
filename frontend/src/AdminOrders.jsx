@@ -49,7 +49,7 @@ function AdminOrders() {
     <div className="address-box">
       <b>Address:</b>
       <p>
-        {order.addressDetails?.Name}, {order.addressDetails?.HouseNo}, 
+        {order.addressDetails?.Name}, {order.addressDetails?.Phone},{order.addressDetails?.HouseNo}, 
         {order.addressDetails?.Street}, {order.addressDetails?.City}, 
         {order.addressDetails?.State} - {order.addressDetails?.Pincode}
       </p>

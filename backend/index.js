@@ -198,7 +198,7 @@ const generateInvoicePDF = async (order) => {
         .text(`Estimated: 3-5 Days`,{align:"left"})
         .text(`Shipping Cost: Free`,{align:"left"});
       doc.moveDown();
-      doc.text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(`${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
+      doc.text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(`${order.addressDetails.Phone},${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
       doc.moveDown();
        let rows = [];
       let taxableSubtotal = 0;
@@ -549,6 +549,7 @@ app.post('/orders', authMiddleware, async (req, res) => {
       paymentId: paymentId || "",
       addressDetails: {
         Name: address.Name,
+        Phone: address.Phone,
         HouseNo: address.HouseNo,
         Street: address.Street,
         City: address.City,

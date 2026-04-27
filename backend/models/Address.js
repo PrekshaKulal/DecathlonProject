@@ -3,6 +3,7 @@ const addressSchema = new mongoose.Schema({
   userId: String,
 
   Name: String,
+  Phone:String,
   HouseNo: String,
   Street: String,
   City: String,

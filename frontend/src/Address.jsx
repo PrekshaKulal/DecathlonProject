@@ -39,6 +39,7 @@ await axios.post(`${import.meta.env.VITE_API_URL}/add-address`,form,
 
  const [form,setForm]=useState({
     Name:"",
+    Phone:"",
   HouseNo: "",
   Street: "",
  
