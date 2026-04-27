@@ -118,6 +118,7 @@ const placeOrder = async () => {
   return (
    <div className="addresses-page">
       <h2>Select Address</h2>
+      <br/>
       {addresses.map((addr) => (
        <div
   key={addr._id}
@@ -133,7 +134,7 @@ const placeOrder = async () => {
         + Add New Address
       </button>
       <br /><br />
-      <h3>Choose Payment Method</h3>
+      <h3>Choose Payment Method</h3><br/>
 
 <div>
   <label>
