@@ -5,8 +5,8 @@ import axios from "axios";
 import {BsFillArchiveFill,BsFillGrid3X3GapFill,BsPeopleFill,BsFillBellFill} from 'react-icons/bs'
 //import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 //import { RechartsDevtools } from '@recharts/devtools';
-import {Chart as ChartJS,defaults} from "chart.js"
-import {Line,Bar,Doughnut,Pie} from "react-chartjs-2"
+//import {Chart as ChartJS,defaults} from "chart.js"
+//import {Line,Bar,Doughnut,Pie} from "react-chartjs-2"
 import {useState,useEffect} from 'react'
 function Admin() {
   //const {data}= axios.get(`${import.meta.env.VITE_API_URL}/order-list`);
