@@ -29,21 +29,29 @@ function Login() {
 };
   return (
     <>
-      <header className="login-header">
-        <div className="header-left" onClick={() => navigate("/")}>
-          <img src="https://png.pngtree.com/element_our/sm/20180515/sm_5afb1034cabf4.jpg" alt="back" className="back-icon"/>
-          <span>Back</span>
-        </div>
-        <img src="https://login.decathlon.net/assets/decathlon-logo-vp-DDH3S1xy.svg" alt="logo" className="header-logo"/>
-        <div style={{ display: "flex" }}>
+     <header className="login-header">
+  <div className="header-left" onClick={() => navigate("/")}>
+    <img
+      src="https://png.pngtree.com/element_our/sm/20180515/sm_5afb1034cabf4.jpg"
+      alt="back"
+      className="back-icon"
+    />
+    <span>Back</span>
+  </div>
+
+  <img
+    src="https://login.decathlon.net/assets/decathlon-logo-vp-DDH3S1xy.svg"
+    alt="logo"
+    className="header-logo"
+  />
+
   <button
     className="admin-login-btn"
-    style={{ color: "black", background: "lightgray", marginLeft: "auto" }}
     onClick={() => navigate("/admin-login")}
   >
     Admin Login
   </button>
-</div>  </header>
+</header>
       <div className="loginpage">
     <h2>Login</h2>
     
