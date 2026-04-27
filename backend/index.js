@@ -168,6 +168,7 @@ const sendOrderEmail = async (email, status, order, pdfBuffer = null) => {
     console.log(err.response?.body || err);
   }
 };
+/*
 const generateInvoicePDF = async (order) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -198,7 +199,7 @@ const generateInvoicePDF = async (order) => {
         .text(`Estimated: 3-5 Days`,{align:"left"})
         .text(`Shipping Cost: Free`,{align:"left"});
       doc.moveDown();
-      doc.text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(`${order.addressDetails.Phone},${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
+      doc.text("Billed To:").font("Helvetica").text(order.addressDetails.Name).text(order.email).text(order.addressDetails.Phone).text(`${order.addressDetails.HouseNo}, ${order.addressDetails.Street},`).text(`${order.addressDetails.City}, ${order.addressDetails.District},`).text(`${order.addressDetails.State} - ${order.addressDetails.Pincode}`);
       doc.moveDown();
        let rows = [];
       let taxableSubtotal = 0;
@@ -269,6 +270,166 @@ const generateInvoicePDF = async (order) => {
 
       doc.end();
 
+    } catch (err) {
+      reject(err);
+    }
+  });
+};*/
+const axios = require("axios");
+
+const generateInvoicePDF = async (order) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let buffers = [];
+
+      const doc = new PDFDocument({
+        margin: 30,
+        size: "A4"
+      });
+
+      doc.on("data", buffers.push.bind(buffers));
+      doc.on("end", () => resolve(Buffer.concat(buffers)));
+
+      // LOGO URL
+      const logoUrl =
+        "https://res.cloudinary.com/dqggnkv9n/image/upload/v1777271769/decathlon-logo-vp-DDH3S1xy_smdrby.svg";
+
+      const response = await axios.get(logoUrl, {
+        responseType: "arraybuffer"
+      });
+
+      const logo = Buffer.from(response.data, "binary");
+
+      // Logo
+      doc.image(logo, 30, 20, { width: 120 });
+
+      // Company Details
+      doc
+        .fontSize(10)
+        .text("Decathlon India Pvt Ltd", 350, 25)
+        .text("Bangalore, Karnataka", 350, 40)
+        .text("Email: support@decathlon.com", 350, 55)
+        .text("Phone: +91 9876543210", 350, 70);
+
+      doc.moveDown(4);
+
+      // Title
+      doc
+        .rect(30, 110, 535, 30)
+        .fill("#007BFF");
+
+      doc
+        .fillColor("white")
+        .fontSize(18)
+        .text("PAYMENT RECEIPT", 200, 118);
+
+      doc.fillColor("black");
+
+      // Invoice Info
+      doc.moveDown(2);
+      doc.fontSize(11);
+
+      doc.text(`Invoice #: INV-${Date.now()}`);
+      doc.text(`Order ID: ${order._id}`);
+      doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`);
+      doc.text(`Payment: ${order.paymentMethod}`);
+      doc.text(`Status: ${order.status || "Placed"}`);
+
+      // Customer Box
+      doc.moveDown();
+
+      doc
+        .rect(30, 230, 535, 90)
+        .stroke();
+
+      doc.text("Billed To:", 40, 240);
+      doc.text(order.addressDetails.Name, 40, 255);
+      doc.text(order.email, 40, 270);
+      doc.text(order.addressDetails.Phone, 40, 285);
+
+      doc.text(
+        `${order.addressDetails.HouseNo}, ${order.addressDetails.Street}`,
+        250,
+        255
+      );
+
+      doc.text(
+        `${order.addressDetails.City}, ${order.addressDetails.State}`,
+        250,
+        270
+      );
+
+      doc.text(
+        `${order.addressDetails.Pincode}`,
+        250,
+        285
+      );
+
+      // Products
+      let rows = [];
+      let subtotal = 0;
+
+      for (let item of order.products) {
+        const product = await ProductModel.findById(item.productId);
+
+        const qty = item.quantity;
+        const price = Number(product.productPrice);
+        const total = qty * price;
+
+        subtotal += total;
+
+        rows.push([
+          product.productName,
+          qty,
+          `Rs ${price}`,
+          `Rs ${total}`
+        ]);
+      }
+
+      await doc.table(
+        {
+          headers: ["Product", "Qty", "Price", "Total"],
+          rows: rows
+        },
+        {
+          x: 30,
+          y: 340
+        }
+      );
+
+      // Totals
+      const gst = subtotal * 0.18;
+      const grand = subtotal + gst;
+
+      doc.moveDown();
+
+      doc.text(`Subtotal: Rs ${subtotal.toFixed(2)}`, {
+        align: "right"
+      });
+
+      doc.text(`GST (18%): Rs ${gst.toFixed(2)}`, {
+        align: "right"
+      });
+
+      doc
+        .fontSize(14)
+        .font("Helvetica-Bold")
+        .text(`Grand Total: Rs ${grand.toFixed(2)}`, {
+          align: "right"
+        });
+
+      // Footer
+      doc.moveDown(2);
+
+      doc
+        .fontSize(10)
+        .font("Helvetica")
+        .text(
+          "Thank you for shopping with Decathlon!",
+          { align: "center" }
+        );
+
+      doc.end();
     } catch (err) {
       reject(err);
     }
