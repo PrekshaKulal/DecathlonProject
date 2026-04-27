@@ -20,12 +20,14 @@ const AddressModel = require("./models/Address");
 //const path=require("path")
 const jwt = require("jsonwebtoken");
 const dns = require("dns");
+const axios=require("axios");
 require('dotenv').config();
 const Razorpay = require("razorpay");
 const sgMail = require('@sendgrid/mail');
 const {CloudinaryStorage} =require("multer-storage-cloudinary")
 const {v2:cloudinary} =require("cloudinary")
 const PDFDocument = require("pdfkit-table");
+const SVGtoPDF = require("svg-to-pdfkit");
 
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -275,7 +277,9 @@ const generateInvoicePDF = async (order) => {
     }
   });
 };*/
-const axios = require("axios");
+
+
+
 
 const generateInvoicePDF = async (order) => {
   return new Promise(async (resolve, reject) => {
@@ -288,91 +292,99 @@ const generateInvoicePDF = async (order) => {
       });
 
       doc.on("data", buffers.push.bind(buffers));
-      doc.on("end", () => resolve(Buffer.concat(buffers)));
+      doc.on("end", () => {
+        resolve(Buffer.concat(buffers));
+      });
 
-      // LOGO URL
+      /* ===============================
+         LOGO SECTION (SVG IMAGE)
+      =============================== */
+
       const logoUrl =
         "https://res.cloudinary.com/dqggnkv9n/image/upload/v1777271769/decathlon-logo-vp-DDH3S1xy_smdrby.svg";
 
-      const response = await axios.get(logoUrl, {
-        responseType: "arraybuffer"
+      const response = await axios.get(logoUrl);
+      const svg = response.data;
+
+      SVGtoPDF(doc, svg, 30, 20, {
+        width: 140,
+        height: 40
       });
 
-      const logo = Buffer.from(response.data, "binary");
+      /* ===============================
+         COMPANY DETAILS
+      =============================== */
 
-      // Logo
-      doc.image(logo, 30, 20, { width: 120 });
-
-      // Company Details
       doc
         .fontSize(10)
-        .text("Decathlon India Pvt Ltd", 350, 25)
-        .text("Bangalore, Karnataka", 350, 40)
-        .text("Email: support@decathlon.com", 350, 55)
-        .text("Phone: +91 9876543210", 350, 70);
+        .fillColor("black")
+        .text("Decathlon India Pvt Ltd", 350, 20)
+        .text("Bangalore, Karnataka", 350, 35)
+        .text("support@decathlon.com", 350, 50)
+        .text("+91 6238485389", 350, 65);
 
-      doc.moveDown(4);
+      /* ===============================
+         HEADER BAR
+      =============================== */
 
-      // Title
-      doc
-        .rect(30, 110, 535, 30)
-        .fill("#007BFF");
+      doc.rect(30, 90, 535, 30).fill("#007BFF");
 
       doc
         .fillColor("white")
         .fontSize(18)
-        .text("PAYMENT RECEIPT", 200, 118);
+        .text("PAYMENT RECEIPT", 190, 98);
 
       doc.fillColor("black");
 
-      // Invoice Info
-      doc.moveDown(2);
+      /* ===============================
+         ORDER DETAILS
+      =============================== */
+
       doc.fontSize(11);
 
-      doc.text(`Invoice #: INV-${Date.now()}`);
+      doc.text(`Invoice No: INV-${Date.now()}`, 30, 140);
       doc.text(`Order ID: ${order._id}`);
       doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`);
       doc.text(`Payment: ${order.paymentMethod}`);
       doc.text(`Status: ${order.status || "Placed"}`);
 
-      // Customer Box
-      doc.moveDown();
+      /* ===============================
+         CUSTOMER BOX
+      =============================== */
+
+      doc.rect(30, 240, 535, 90).stroke();
 
       doc
-        .rect(30, 230, 535, 90)
-        .stroke();
+        .fontSize(11)
+        .text("Billed To:", 40, 250)
+        .text(order.addressDetails.Name, 40, 268)
+        .text(order.email, 40, 284)
+        .text(order.addressDetails.Phone, 40, 300);
 
-      doc.text("Billed To:", 40, 240);
-      doc.text(order.addressDetails.Name, 40, 255);
-      doc.text(order.email, 40, 270);
-      doc.text(order.addressDetails.Phone, 40, 285);
+      doc
+        .text(
+          `${order.addressDetails.HouseNo}, ${order.addressDetails.Street}`,
+          260,
+          268
+        )
+        .text(
+          `${order.addressDetails.City}, ${order.addressDetails.State}`,
+          260,
+          284
+        )
+        .text(`${order.addressDetails.Pincode}`, 260, 300);
 
-      doc.text(
-        `${order.addressDetails.HouseNo}, ${order.addressDetails.Street}`,
-        250,
-        255
-      );
+      /* ===============================
+         PRODUCT TABLE
+      =============================== */
 
-      doc.text(
-        `${order.addressDetails.City}, ${order.addressDetails.State}`,
-        250,
-        270
-      );
-
-      doc.text(
-        `${order.addressDetails.Pincode}`,
-        250,
-        285
-      );
-
-      // Products
       let rows = [];
       let subtotal = 0;
 
       for (let item of order.products) {
         const product = await ProductModel.findById(item.productId);
 
-        const qty = item.quantity;
+        const qty = Number(item.quantity);
         const price = Number(product.productPrice);
         const total = qty * price;
 
@@ -381,8 +393,8 @@ const generateInvoicePDF = async (order) => {
         rows.push([
           product.productName,
           qty,
-          `Rs ${price}`,
-          `Rs ${total}`
+          `Rs ${price.toFixed(2)}`,
+          `Rs ${total.toFixed(2)}`
         ]);
       }
 
@@ -393,41 +405,47 @@ const generateInvoicePDF = async (order) => {
         },
         {
           x: 30,
-          y: 340
+          y: 360,
+          width: 535
         }
       );
 
-      // Totals
+      /* ===============================
+         TOTALS
+      =============================== */
+
       const gst = subtotal * 0.18;
-      const grand = subtotal + gst;
+      const grandTotal = subtotal + gst;
 
       doc.moveDown();
 
-      doc.text(`Subtotal: Rs ${subtotal.toFixed(2)}`, {
+      doc.text(`Subtotal : Rs ${subtotal.toFixed(2)}`, {
         align: "right"
       });
 
-      doc.text(`GST (18%): Rs ${gst.toFixed(2)}`, {
+      doc.text(`GST (18%) : Rs ${gst.toFixed(2)}`, {
         align: "right"
       });
 
       doc
-        .fontSize(14)
         .font("Helvetica-Bold")
-        .text(`Grand Total: Rs ${grand.toFixed(2)}`, {
+        .fontSize(14)
+        .text(`Grand Total : Rs ${grandTotal.toFixed(2)}`, {
           align: "right"
         });
 
-      // Footer
+      /* ===============================
+         FOOTER
+      =============================== */
+
       doc.moveDown(2);
 
       doc
-        .fontSize(10)
         .font("Helvetica")
-        .text(
-          "Thank you for shopping with Decathlon!",
-          { align: "center" }
-        );
+        .fontSize(10)
+        .text("Thank you for shopping with Decathlon!", {
+          align: "center"
+        });
 
       doc.end();
     } catch (err) {
