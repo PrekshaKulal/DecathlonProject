@@ -1,8 +1,8 @@
 import React from "react";
-import "./MyProfile.css";
+import "./Profile.css";
 import { useNavigate } from "react-router-dom";
 
-function MyProfile() {
+function Profile() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -64,4 +64,4 @@ function MyProfile() {
   );
 }
 
-export default MyProfile;
+export default Profile;
