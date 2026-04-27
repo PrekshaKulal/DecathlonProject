@@ -34,8 +34,8 @@
   right: 20px;   /* right end */
   padding: 8px 14px;
   border: none;
-  background: lightgray;
-  color: black;
+  background-color: #1a237e; 
+  color: white;
   border-radius: 4px;
   cursor: pointer;
 }
