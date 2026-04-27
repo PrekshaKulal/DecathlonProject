@@ -7,6 +7,32 @@ import {BsFillArchiveFill,BsFillGrid3X3GapFill,BsPeopleFill,BsFillBellFill} from
 //import { RechartsDevtools } from '@recharts/devtools';
 //import {Chart as ChartJS,defaults} from "chart.js"
 //import {Line,Bar,Doughnut,Pie} from "react-chartjs-2"
+import {
+Chart as ChartJS,
+CategoryScale,
+LinearScale,
+BarElement,
+Title,
+Tooltip,
+Legend,
+ArcElement,
+PointElement,
+LineElement
+} from "chart.js";
+
+import { Bar, Pie, Line } from "react-chartjs-2";
+
+ChartJS.register(
+CategoryScale,
+LinearScale,
+BarElement,
+Title,
+Tooltip,
+Legend,
+ArcElement,
+PointElement,
+LineElement
+);
 import {useState,useEffect} from 'react'
 function Admin() {
   //const {data}= axios.get(`${import.meta.env.VITE_API_URL}/order-list`);
@@ -14,6 +40,17 @@ function Admin() {
    const [totalOrders, setTotalOrders] = useState(0);
 const [totalUsers, setTotalUsers] = useState(0);
 const [totalProducts, setTotalProducts] = useState(0);
+const data = {
+labels: ["Products", "Users", "Orders"],
+datasets: [
+{
+label: "Dashboard Stats",
+data: [totalProducts, totalUsers, totalOrders],
+backgroundColor: ["#007bff", "#28a745", "#ffc107"],
+borderRadius: 10
+}
+]
+};
 
   useEffect(() => {
   const fetchCounts = async () => {
@@ -107,6 +144,13 @@ const [totalProducts, setTotalProducts] = useState(0);
 <h3>{totalOrders}</h3>
 
         </div>
+        <div style={{width:"700px", marginTop:"40px"}}>
+   <Bar data={data} />
+</div>
+
+<div style={{width:"400px", marginTop:"40px"}}>
+   <Pie data={data} />
+</div>
         {/*  <BarChart
       style={{ width: '100%', maxWidth: '700px', maxHeight: '70vh', aspectRatio: 1.618 }}
       responsive
