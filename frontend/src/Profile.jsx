@@ -27,7 +27,11 @@ function Profile() {
         }
       );
 
-      setUser(res.data);
+      setUser({
+        email: res.data.email || "",
+        addresses: res.data.addresses || []
+      });
+
     } catch (err) {
       console.log(err);
     }
@@ -53,26 +57,25 @@ function Profile() {
           </div>
         </div>
 
-        {/* Personal Details */}
         <div className="profile-section">
           <h3>Personal Details</h3>
-
           <p><strong>Email:</strong> {user.email}</p>
         </div>
 
-        {/* Saved Addresses */}
         <div className="profile-section">
           <h3>Saved Addresses</h3>
 
-          {user.addresses.length > 0 ? (
+          {user.addresses?.length > 0 ? (
             user.addresses.map((addr) => (
               <div className="address-box" key={addr._id}>
                 <p><strong>{addr.Name}</strong></p>
-                 <p><strong>{addr.Phone}</strong></p>
 
                 <p>{addr.HouseNo}, {addr.Street}</p>
+
                 <p>{addr.City}, {addr.District}</p>
+
                 <p>{addr.State} - {addr.Pincode}</p>
+
                 <p><strong>Phone:</strong> {addr.Phone}</p>
               </div>
             ))
@@ -85,7 +88,6 @@ function Profile() {
           </button>
         </div>
 
-        {/* Logout */}
         <div className="profile-section logout-box">
           <button className="logout-btn" onClick={handleLogout}>
             Logout

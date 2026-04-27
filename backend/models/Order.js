@@ -27,6 +27,7 @@ const orderSchema = new mongoose.Schema({
   },
   addressDetails: {
     Name: String,
+    Phone:String,
     HouseNo: String,
     Street: String,
     City: String,
