@@ -43,6 +43,14 @@ function Profile() {
   };
 
   return (
+    <>
+     <header className="login-header">
+        <div className="header-left" onClick={() => navigate("/")}>
+          <img src="https://png.pngtree.com/element_our/sm/20180515/sm_5afb1034cabf4.jpg" alt="back" className="back-icon"/>
+          <span>Back</span>
+        </div>
+        <img src="https://login.decathlon.net/assets/decathlon-logo-vp-DDH3S1xy.svg" alt="logo" className="header-logo"/>
+        </header>
     <div className="profile-page">
       <div className="profile-card">
 
@@ -96,6 +104,7 @@ function Profile() {
 
       </div>
     </div>
+    </>
   );
 }
 
