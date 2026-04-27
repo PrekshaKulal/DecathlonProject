@@ -26,6 +26,7 @@
     "pdfkit-table": "^0.1.99",
     "razorpay": "^2.9.6",
     "resend": "^6.10.0",
-    "sib-api-v3-sdk": "^8.5.0"
+    "sib-api-v3-sdk": "^8.5.0",
+    "svg-to-pdfkit": "^0.1.8"
   }
 }
