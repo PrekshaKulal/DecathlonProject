@@ -15,6 +15,7 @@ import Cart from "./Cart";
 import View_Users from "./View_Users";
 import Address from "./Address";
 import Addresses from "./Addresses";
+import Profile from "./Profile";
 import AdminOrders from "./AdminOrders";
 import Manage_Orders from "./Manage_Orders";
 
@@ -45,6 +46,7 @@ function Layout() {
         <Route path="/addresses" element={<Addresses/>}/>
         <Route path="/admin/orders" element={<AdminOrders/>}/>
         <Route path="/manage-orders" element={<Manage_Orders/>}/>
+        <Route path="/profile" element={<Profile/>}/>
       </Routes>
 
 
