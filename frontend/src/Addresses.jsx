@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Addresses.css";
 
 function Addresses() {
   const [addresses, setAddresses] = useState([]);
@@ -115,10 +116,13 @@ const placeOrder = async () => {
   }
 };
   return (
-    <div style={{ padding: "20px" }}>
+   <div className="addresses-page">
       <h2>Select Address</h2>
       {addresses.map((addr) => (
-        <div key={addr._id} style={{ marginBottom: "10px" }}>
+       <div
+  key={addr._id}
+  className={`address-card ${selected === addr._id ? "active" : ""}`}
+>
           <input type="radio" name="address" checked={selected === addr._id} onChange={() => setSelected(addr._id)} />
           <span style={{ marginLeft: "10px" }}>
             {addr.Name}, {addr.HouseNo}, {addr.Street}, {addr.City}, {addr.State} - {addr.Pincode}
@@ -154,9 +158,9 @@ const placeOrder = async () => {
     Online Payment (Razorpay)
   </label>
 </div>
-      <button onClick={placeOrder}>
-        Place Order 
-      </button>
+     <button className="place-order-btn" onClick={placeOrder}>
+  Place Order
+</button>
     </div>
   );
 }

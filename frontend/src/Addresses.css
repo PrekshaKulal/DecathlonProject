@@ -1,0 +1,82 @@
+.addresses-page {
+  background: #f1f3f6;
+  min-height: 100vh;
+  padding: 30px 15px;
+}
+
+.addresses-box {
+  max-width: 850px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+}
+
+.addresses-box h2,
+.addresses-box h3 {
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.address-card {
+  display: flex;
+  gap: 12px;
+  border: 1px solid #ddd;
+  padding: 18px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.address-card:hover {
+  border-color: #2874f0;
+}
+
+.address-card.active {
+  border: 2px solid #2874f0;
+  background: #f5faff;
+}
+
+.address-card h4 {
+  margin: 0 0 6px;
+}
+
+.address-card p {
+  margin: 2px 0;
+  color: #555;
+}
+
+.add-address-btn {
+  background: white;
+  color: #2874f0;
+  border: 1px solid #2874f0;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+.payment-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.place-order-btn {
+  width: 100%;
+  background: #fb641b;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.place-order-btn:hover {
+  background: #e85a16;
+}
