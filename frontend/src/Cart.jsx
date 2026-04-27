@@ -174,6 +174,7 @@ products.forEach((product) => {
   <h3>Total Payable: Rs {(totalAmount * 1.18).toFixed(2)}</h3>
 </div>            <br/><br/>
                   <button className="place-order"  onClick={()=>navigate("/addresses")}>Place Order</button>
+                  <br/><br/>
 
                    
                 </div>
