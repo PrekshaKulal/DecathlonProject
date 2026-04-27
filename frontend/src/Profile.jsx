@@ -91,9 +91,7 @@ function Profile() {
             <p>No saved addresses</p>
           )}
 
-          <button onClick={() => navigate("/address")}>
-            Manage Addresses
-          </button>
+         
         </div>
 
         <div className="profile-section logout-box">
