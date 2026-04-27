@@ -172,7 +172,7 @@ products.forEach((product) => {
   <p>Subtotal: Rs {totalAmount.toFixed(2)}</p>
   <p>GST (18%): Rs {(totalAmount * 0.18).toFixed(2)}</p>
   <h3>Total Payable: Rs {(totalAmount * 1.18).toFixed(2)}</h3>
-</div>            <br/><br/>
+</div>           <br/>
                   <button className="place-order"  onClick={()=>navigate("/addresses")}>Place Order</button>
                   <br/><br/>
 
