@@ -79,6 +79,7 @@ return (
 
   {token && showDropdown && (
     <div className="dropdown">
+      <p onClick={()=>navigate("/profile")}>My Profile</p>
       <p onClick={()=>navigate("/manage-orders")}>My Orders</p>
       <p onClick={handleLogout}>Logout</p>
     </div>
