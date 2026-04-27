@@ -716,13 +716,13 @@ app.get("/my-profile", authMiddleware, async (req, res) => {
 
     res.json({
       email: user.email,
-      addressCount: addresses.length
+      addresses: addresses
     });
+
   } catch (err) {
     res.status(500).json({ error: "Failed" });
   }
 });
-
 
 
 
