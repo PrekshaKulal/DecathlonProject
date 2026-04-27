@@ -507,6 +507,15 @@ const storage = new CloudinaryStorage({
         cb(null,Date.now()+file.originalname);
     }
 })*/
+
+app.get("/products/count", async (req, res) => {
+  try {
+    const count = await ProductModel.countDocuments();
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to count products" });
+  }
+});
 const upload=multer({storage:storage});
 app.post('/products', upload.single('file'), async (req, res) => {
   try {
@@ -879,14 +888,7 @@ app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
   }
 });*/
 
-app.get("/products/count", async (req, res) => {
-  try {
-    const count = await ProductModel.countDocuments();
-    res.json({ count });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to count products" });
-  }
-});
+
 
 app.get("/products/:id", authMiddleware, async (req, res) => {
   try {
