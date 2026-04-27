@@ -879,6 +879,15 @@ app.put("/admin/orders/item/:orderId/:productId", async (req, res) => {
   }
 });*/
 
+app.get("/products/count", async (req, res) => {
+  try {
+    const count = await ProductModel.countDocuments();
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to count products" });
+  }
+});
+
 app.get("/products/:id", authMiddleware, async (req, res) => {
   try {
     const product = await ProductModel.findById(req.params.id);
@@ -932,6 +941,22 @@ app.put("/orders/cancel/:id", authMiddleware, async (req, res) => {
   }
 });*/
 
+app.get("/count", async (req, res) => {
+  try {
+    const count = await OrderModel.countDocuments();
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to count orders" });
+  }
+});
+app.get("/users/count", async (req, res) => {
+  try {
+    const count = await UserModel.countDocuments();
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to count users" });
+  }
+});
 
 
 app.listen(process.env.PORT, () => {
