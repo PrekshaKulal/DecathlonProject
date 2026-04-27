@@ -117,7 +117,7 @@ const placeOrder = async () => {
 };
   return (
    <div className="addresses-page">
-      <h2>Select Address</h2>
+      <h2 style={{color:'blue'}}>Select Address</h2>
       <br/>
       {addresses.map((addr) => (
        <div
