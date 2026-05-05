@@ -10,7 +10,7 @@ function Admin_Login() {
     e.preventDefault();
      if(email === "admin@gmail.com" && password === "admin123"){
         alert("Admin Login Successful");
-        navigate("/admin");
+        navigate("/dashboard");
     }
     else{
         alert("Invalid Admin Credentials");
