@@ -42,10 +42,10 @@ const orderSchema = new mongoose.Schema({
   },
   paymentId: String,
   
-  date: {
-    type: Date,
-    default: Date.now
-  }
+  orderDate: {
+  type: Date,
+  default: Date.now
+}
 });
 const OrderModel = mongoose.model("Order", orderSchema);
 module.exports = OrderModel; 

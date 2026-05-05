@@ -796,7 +796,7 @@ app.get("/admin/orders", async (req, res) => {
   try {
     const orders = await OrderModel.find()
     
-      .sort({ date: -1 });
+      .sort({ orderDate: -1 });
 
     res.json(orders);
   } catch (err) {
@@ -849,7 +849,7 @@ app.get("/my-orders", authMiddleware, async (req, res) => {
   try {
     const orders = await OrderModel.find({ userId: req.user.id })
       .populate("products.productId") 
-      .sort({ date: -1 });
+      .sort({ orderDate: -1 });
     res.json(orders);
   } catch (err) {
     console.log(err);
@@ -961,30 +961,25 @@ app.get("/users/count", async (req, res) => {
 });
 app.get("/admin/stats", async (req, res) => {
   try {
-    const products = await Product.find();
-    const orders = await Order.find();
-    const users = await UserModel.find();   
-
-    console.log("Products:", products.length);
-    console.log("Orders:", orders.length);
-    console.log("Users:", users.length);
+    const products = await ProductModel.find();
+    const orders = await OrderModel.find();
+    const users = await UserModel.find();
 
     res.json({
       totalProducts: products.length,
       totalOrders: orders.length,
       totalUsers: users.length,
-      totalRevenue: orders.reduce((sum, o) => sum + (o.total || 0), 0)
+      totalRevenue: orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0)
     });
 
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: err.message });
   }
 });
 app.get("/admin/recent-orders", async (req, res) => {
   try {
-    const orders = await Order.find()
-      .sort({ orderDate: -1 })
+    const orders = await OrderModel.find()
+     .sort({ orderDate: -1 })
       .limit(50);
 
     res.json(orders);

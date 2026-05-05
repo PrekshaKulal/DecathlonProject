@@ -43,35 +43,38 @@ function Dashboard() {
   };
 
   // ✅ Revenue Trend
-  const chartData = orders.slice(0, 7).map(order => ({
-    date: order?.date
-      ? new Date(order.date).toLocaleDateString()
-      : "N/A",
-    revenue: order?.totalAmount || 0
-  }));
+ const chartData = orders.slice(0, 7).map(order => ({
+  date: order?.orderDate
+    ? new Date(order.orderDate).toLocaleDateString()
+    : "N/A",
+  revenue: order?.totalAmount || 0
+}));
 
   // ✅ Status Data
-  const statusData = [
-    {
-      name: "Delivered",
-      value: orders.filter(o => o?.status === "Delivered").length
-    },
-    {
-      name: "Placed",
-      value: orders.filter(o => o?.status === "Placed").length
-    }
-  ];
+ const statusData = [
+  {
+    name: "Delivered",
+    value: orders.filter(
+      o => o?.status?.toLowerCase() === "delivered"
+    ).length
+  },
+  {
+    name: "Placed",
+    value: orders.filter(
+      o => o?.status?.toLowerCase() === "placed"
+    ).length
+  }
+];
 
   const COLORS = ["#00C49F", "#FFBB28"];
 
   // ✅ Monthly Orders
   const monthlyData = orders.map(order => ({
-    month: order?.date
-      ? new Date(order.date).toLocaleString("default", { month: "short" })
-      : "N/A",
-    orders: 1
-  }));
-
+  month: order?.orderDate
+    ? new Date(order.orderDate).toLocaleString("default", { month: "short" })
+    : "N/A",
+  orders: 1
+}));
   const groupedMonthly = Object.values(
     monthlyData.reduce((acc, curr) => {
       acc[curr.month] = acc[curr.month] || { month: curr.month, orders: 0 };
@@ -81,12 +84,12 @@ function Dashboard() {
   );
 
   // ✅ Orders Trend
-  const orderTrendData = orders.slice(0, 7).map(order => ({
-    date: order?.date
-      ? new Date(order.date).toLocaleDateString()
-      : "N/A",
-    orders: 1
-  }));
+ const orderTrendData = orders.slice(0, 7).map(order => ({
+  date: order?.orderDate
+    ? new Date(order.orderDate).toLocaleDateString()
+    : "N/A",
+  orders: 1
+}));
 
   const groupedOrdersTrend = Object.values(
     orderTrendData.reduce((acc, curr) => {
@@ -195,7 +198,9 @@ function Dashboard() {
 
           {orders.map(order => (
             <div key={order._id} className="order-row">
-              <span>{order?._id?.slice(-6)}</span>
+             <span>
+  {order && order._id ? order._id.slice(-6) : "N/A"}
+</span>
               <span>Rs {order?.totalAmount || 0}</span>
               <span>{order?.status || "Placed"}</span>
             </div>
