@@ -41,6 +41,18 @@ function Dashboard() {
       console.log(err);
     }
   };
+  const getOrderStatus = (order) => {
+  if (!order.products) return "Placed";
+
+  const statuses = order.products.map(p => p.status);
+
+  if (statuses.includes("Cancelled")) return "Cancelled";
+  if (statuses.every(s => s === "Delivered")) return "Delivered";
+  if (statuses.includes("Shipped")) return "Shipped";
+  if (statuses.includes("Packed")) return "Packed";
+
+  return "Placed";
+};
 
   // ✅ Revenue Trend
  const chartData = orders.slice(0, 7).map(order => ({
@@ -214,7 +226,7 @@ const statusData = [
   {order && order._id ? order._id.slice(-6) : "N/A"}
 </span>
               <span>Rs {order?.totalAmount || 0}</span>
-              <span>{order?.status || "Placed"}</span>
+             <span>{getOrderStatus(order)}</span>
             </div>
           ))}
         </div>
