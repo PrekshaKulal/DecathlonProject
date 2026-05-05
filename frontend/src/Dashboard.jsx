@@ -57,15 +57,16 @@ function Dashboard() {
   // ✅ Revenue Trend
  const chartData = Object.values(
   orders.reduce((acc, order) => {
-    const date = order?.createdAt
-      ? new Date(order.createdAt).toLocaleDateString()
-      : "N/A";
+    if (!order.createdAt) return acc;
+
+    const dateObj = new Date(order.createdAt);
+    const date = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
 
     if (!acc[date]) {
       acc[date] = { date, revenue: 0 };
     }
 
-    acc[date].revenue += order?.totalAmount || 0;
+    acc[date].revenue += order.totalAmount || 0;
 
     return acc;
   }, {})
@@ -102,15 +103,26 @@ const statusData = [
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
 
   // ✅ Monthly Orders
- const monthlyData = orders.map(order => ({
-  month: order?.createdAt
-    ? new Date(order.createdAt).toLocaleString("default", {
-        month: "short",
-        year: "numeric"
-      })
-    : "N/A",
-  orders: 1
-}));
+ const monthlyData = Object.values(
+  orders.reduce((acc, order) => {
+    if (!order.createdAt) return acc;
+
+    const date = new Date(order.createdAt);
+    const key = `${date.getFullYear()}-${date.getMonth()}`; // safe key
+
+    if (!acc[key]) {
+      acc[key] = {
+        month: date.toLocaleString("default", { month: "short", year: "numeric" }),
+        orders: 0,
+        sortKey: new Date(date.getFullYear(), date.getMonth())
+      };
+    }
+
+    acc[key].orders += 1;
+
+    return acc;
+  }, {})
+).sort((a, b) => a.sortKey - b.sortKey);
   const groupedMonthly = Object.values(
   monthlyData.reduce((acc, curr) => {
     if (!acc[curr.month]) {
@@ -183,7 +195,7 @@ const sortedMonthly = groupedMonthly.sort(
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
-                <XAxis dataKey="date" />
+                <XAxis dataKey="date" tickFormatter={(d) => new Date(d).toLocaleDateString()} />
                 <YAxis />
                 <Tooltip />
                 <Line dataKey="revenue" />
