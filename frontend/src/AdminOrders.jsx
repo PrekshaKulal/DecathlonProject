@@ -47,7 +47,7 @@ function AdminOrders() {
     <>
      <div
           className="header-left"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
         >
           <img
             src="https://png.pngtree.com/element_our/sm/20180515/sm_5afb1034cabf4.jpg"
