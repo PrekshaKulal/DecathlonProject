@@ -55,12 +55,21 @@ function Dashboard() {
 };
 
   // ✅ Revenue Trend
- const chartData = orders.slice(0, 7).map(order => ({
-  date: order?.orderDate
-    ? new Date(order.orderDate).toLocaleDateString()
-    : "N/A",
-  revenue: order?.totalAmount || 0
-}));
+ const chartData = Object.values(
+  orders.reduce((acc, order) => {
+    const date = order?.createdAt
+      ? new Date(order.createdAt).toLocaleDateString()
+      : "N/A";
+
+    if (!acc[date]) {
+      acc[date] = { date, revenue: 0 };
+    }
+
+    acc[date].revenue += order?.totalAmount || 0;
+
+    return acc;
+  }, {})
+).sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // ✅ Status Data
 const statusData = [
@@ -93,19 +102,27 @@ const statusData = [
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
 
   // ✅ Monthly Orders
-  const monthlyData = orders.map(order => ({
-  month: order?.orderDate
-    ? new Date(order.orderDate).toLocaleString("default", { month: "short" })
+ const monthlyData = orders.map(order => ({
+  month: order?.createdAt
+    ? new Date(order.createdAt).toLocaleString("default", {
+        month: "short",
+        year: "numeric"
+      })
     : "N/A",
   orders: 1
 }));
   const groupedMonthly = Object.values(
-    monthlyData.reduce((acc, curr) => {
-      acc[curr.month] = acc[curr.month] || { month: curr.month, orders: 0 };
-      acc[curr.month].orders += 1;
-      return acc;
-    }, {})
-  );
+  monthlyData.reduce((acc, curr) => {
+    if (!acc[curr.month]) {
+      acc[curr.month] = { month: curr.month, orders: 0 };
+    }
+    acc[curr.month].orders += 1;
+    return acc;
+  }, {})
+);
+const sortedMonthly = groupedMonthly.sort(
+  (a, b) => new Date(a.month) - new Date(b.month)
+);
 
   // ✅ Orders Trend
  const orderTrendData = orders.slice(0, 7).map(order => ({
@@ -192,7 +209,7 @@ const statusData = [
         <div className="chart-box">
           <h3>Monthly Orders</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={groupedMonthly}>
+           <BarChart data={sortedMonthly}>
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
