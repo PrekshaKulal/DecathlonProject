@@ -959,7 +959,39 @@ app.get("/users/count", async (req, res) => {
     res.status(500).json({ error: "Failed to count users" });
   }
 });
+app.get("/admin/stats", async (req, res) => {
+  try {
+    const products = await Product.find();
+    const orders = await Order.find();
+    const users = await UserModel.find();   
 
+    console.log("Products:", products.length);
+    console.log("Orders:", orders.length);
+    console.log("Users:", users.length);
+
+    res.json({
+      totalProducts: products.length,
+      totalOrders: orders.length,
+      totalUsers: users.length,
+      totalRevenue: orders.reduce((sum, o) => sum + (o.total || 0), 0)
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+app.get("/admin/recent-orders", async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .sort({ orderDate: -1 })
+      .limit(50);
+
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching recent orders" });
+  }
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
