@@ -57,20 +57,25 @@ function Dashboard() {
   // ✅ Revenue Trend
  const chartData = Object.values(
   orders.reduce((acc, order) => {
-    if (!order.createdAt) return acc;
+    if (!order.orderDate) return acc;
 
-    const dateObj = new Date(order.createdAt);
-    const date = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
+    const dateObj = new Date(order.orderDate);
+    const dateKey = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    if (!acc[date]) {
-      acc[date] = { date, revenue: 0 };
+    if (!acc[dateKey]) {
+      acc[dateKey] = {
+        date: dateKey,
+        revenue: 0
+      };
     }
 
-    acc[date].revenue += order.totalAmount || 0;
+    acc[dateKey].revenue += order.totalAmount || 0;
 
     return acc;
   }, {})
-).sort((a, b) => new Date(a.date) - new Date(b.date));
+)
+.sort((a, b) => new Date(a.date) - new Date(b.date))
+.slice(-7); // last 7 days only
 
   // ✅ Status Data
 const statusData = [
@@ -183,7 +188,7 @@ const sortedMonthly = groupedMonthly.sort(
             <span>Users</span>
           </div>
           <div className="card">
-            <p style={{color:" #007bff"}}>Rs{stats?.totalRevenue || 0}</p>
+            <p style={{color:" #007bff"}}>Rs {stats?.totalRevenue || 0}</p>
             <span>Revenue</span>
           </div>
         </div>
@@ -195,7 +200,10 @@ const sortedMonthly = groupedMonthly.sort(
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
-                <XAxis dataKey="date" tickFormatter={(d) => new Date(d).toLocaleDateString()} />
+                <XAxis
+  dataKey="date"
+  tickFormatter={(d) => new Date(d).toLocaleDateString()}
+/>
                 <YAxis />
                 <Tooltip />
                 <Line dataKey="revenue" />
