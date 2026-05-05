@@ -17,9 +17,11 @@ useEffect(() => {
   .then(res => setProducts(res.data))
   .catch(err => console.log(err));}, []);
 
-  const filteredProducts = products.filter(product =>
-  product.productName?.toLowerCase().includes(search.toLowerCase())
-);
+ const filteredProducts = products
+  .filter(product =>
+    product.productName?.toLowerCase().includes(search.toLowerCase())
+  )
+  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   
     return(
@@ -98,11 +100,11 @@ useEffect(() => {
             </div>
            
           
-            <div className='homecards'>
+            <div className='addcards'>
                
 
 {filteredProducts.map((product) => (
-<Link to={`/individual/${product._id}`} className='eachcard' key={product._id}>
+<Link to={`/individual/${product._id}`} className='addedcard' key={product._id}>
 <img src={product.file} alt={product.productName} />
 <p className='bigcardtext'>{product.productName}</p>
 <h3 className='smalltext'>MRP Rs {product.productPrice}</h3>
