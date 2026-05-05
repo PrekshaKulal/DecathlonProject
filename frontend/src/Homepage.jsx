@@ -4,6 +4,7 @@ import { useEffect,useState } from 'react';
 import { Carousal } from './Carousal';
 import { slides } from "./data/Data";
 import axios from 'axios';
+import Navbar from "./Navbar";
 
 import { Link } from 'react-router-dom';
 function Homepage(){
@@ -17,12 +18,13 @@ useEffect(() => {
   .catch(err => console.log(err));}, []);
 
   const filteredProducts = products.filter(product =>
-  product.productName.toLowerCase().includes(search.toLowerCase())
+  product.productName?.toLowerCase().includes(search.toLowerCase())
 );
 
   
     return(
         <>
+        <Navbar search={search} setSearch={setSearch} />
         <div className='homecards'>
             <div className='eachcard'>
                 <img src="https://contents.mediadecathlon.com/s1371134/k$314e5f23e193aab04dceff5d9bcbdee4/defaut.jpg?format=auto&quality=70&f=160x0" alt="card1" />
