@@ -24,6 +24,7 @@
 
 .sidebar p:hover {
   background: #f0f0f0;
+  color: #007bff;
 }
 
 .sidebar .active {

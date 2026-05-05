@@ -113,24 +113,24 @@ function Dashboard() {
       {/* Main */}
       <div className="dashboard-main">
 
-        <h2>Welcome to Admin Dashboard</h2>
+        <h2 style={{color:" #007bff"}}>Welcome to Admin Dashboard</h2>
 
         {/* Stats */}
         <div className="stats-cards">
           <div className="card">
-            <p>{stats?.totalProducts || 0}</p>
+            <p style={{color:" #007bff"}}>{stats?.totalProducts || 0}</p>
             <span>Total Products</span>
           </div>
           <div className="card">
-            <p>{stats?.totalOrders || 0}</p>
+            <p style={{color:" #007bff"}}>{stats?.totalOrders || 0}</p>
             <span>Total Orders</span>
           </div>
           <div className="card">
-            <p>{stats?.totalUsers || 0}</p>
+            <p style={{color:" #007bff"}}>{stats?.totalUsers || 0}</p>
             <span>Users</span>
           </div>
           <div className="card">
-            <p>₹{stats?.totalRevenue || 0}</p>
+            <p style={{color:" #007bff"}}>Rs{stats?.totalRevenue || 0}</p>
             <span>Revenue</span>
           </div>
         </div>
