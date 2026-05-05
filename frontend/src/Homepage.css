@@ -8,22 +8,21 @@
     margin-bottom: 0;     
 }
 .addcards {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);  /* 🔥 exactly 4 per row */
     gap: 20px;
-    justify-content: flex-start;   /* 🔥 LEFT ALIGN */
     padding: 10px;
 }
 .addedcard {
-    width: 200px;
-    flex: 0 0 200px;   /* 🔥 prevents stretching */
+    width: 100%;          /* fills grid column */
+    max-width: 220px;     /* optional limit */
     text-align: center;
     cursor: pointer;
 }
 .addedcard img {
     width: 100%;
     height: 180px;
-    object-fit: cover;   /* 🔥 prevents weird resizing */
+    object-fit: cover;
     border-radius: 8px;
 }
 
