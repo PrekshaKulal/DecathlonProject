@@ -116,10 +116,10 @@ const statusData = [
       {/* Sidebar */}
       <div className="sidebar">
         <p className="active">Dashboard</p>
-        <p onClick={() => navigate("/addproduct")}>Add Product</p>
-        <p onClick={() => navigate("/manageproduct")}>Manage Product</p>
-        <p onClick={() => navigate("/manageorder")}>Manage Orders</p>
-        <p onClick={() => navigate("/manageuser")}>Manage Users</p>
+        <p onClick={() => navigate("/add")}>Add Product</p>
+        <p onClick={() => navigate("/manage")}>Manage Product</p>
+        <p onClick={() => navigate("/admin/orders")}>Manage Orders</p>
+        <p onClick={() => navigate("/view-users")}>Manage Users</p>
       </div>
 
       {/* Main */}
