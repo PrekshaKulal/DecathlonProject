@@ -54,7 +54,7 @@ function Dashboard() {
   return "Placed";
 };
 
-  // ✅ Revenue Trend
+
 const chartData = Object.values(
   orders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
@@ -74,6 +74,7 @@ const chartData = Object.values(
 )
 .sort((a, b) => new Date(a.date) - new Date(b.date))
 .slice(-7);
+
 
   // ✅ Status Data
 const statusData = [
