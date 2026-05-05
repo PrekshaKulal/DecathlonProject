@@ -59,7 +59,7 @@ const last7Days = [];
 
 
 // create last 7 days (including today)
-for (let i = 6; i >= 0; i--) {
+for (let i = 30; i >= 0; i--) {
  const d = new Date();
 d.setDate(d.getDate() - i);
   const key = d.toLocaleDateString("en-CA");
