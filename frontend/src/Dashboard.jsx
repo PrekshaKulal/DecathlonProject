@@ -55,25 +55,36 @@ function Dashboard() {
 };
 
 
-const chartData = Object.values(
-  orders.reduce((acc, order) => {
-    if (!order.orderDate) return acc;
+const last7Days = [];
 
-   const dateKey = new Date(order.orderDate)
-  .toISOString()
-  .split("T")[0];
 
-    if (!acc[dateKey]) {
-      acc[dateKey] = { date: dateKey, revenue: 0 };
-    }
+// create last 7 days (including today)
+for (let i = 6; i >= 0; i--) {
+ const d = new Date();
+d.setDate(d.getDate() - i);
+  const key = d.toLocaleDateString("en-CA");
 
-    acc[dateKey].revenue += order.totalAmount || 0;
+  last7Days.push({
+    date: key,
+    revenue: 0
+  });
+}
 
-    return acc;
-  }, {})
-)
-.sort((a, b) => new Date(a.date) - new Date(b.date))
-.slice(-7);
+// fill data from orders
+orders.forEach(order => {
+  if (!order.orderDate) return;
+
+  const orderDate = new Date(order.orderDate)
+  .toLocaleDateString("en-CA");
+
+  const day = last7Days.find(d => d.date === orderDate);
+
+  if (day) {
+    day.revenue += order.totalAmount || 0;
+  }
+});
+
+const chartData = last7Days;
 
 
   // ✅ Status Data
@@ -142,25 +153,23 @@ const sortedMonthly = groupedMonthly.sort(
   orders: 1
 }));*/
 
- const groupedOrdersTrend = Object.values(
-  orders.reduce((acc, order) => {
-    if (!order.orderDate) return acc;
+ const ordersTrend = [...last7Days].map(d => ({
+  date: d.date,
+  orders: 0
+}));
 
-    const date = new Date(order.orderDate)
-      .toISOString()
-      .split("T")[0];
+orders.forEach(order => {
+  if (!order.orderDate) return;
 
-    if (!acc[date]) {
-      acc[date] = { date, orders: 0 };
-    }
+  const orderDate = new Date(order.orderDate)
+  .toLocaleDateString("en-CA");
 
-    acc[date].orders += 1;
+  const day = ordersTrend.find(d => d.date === orderDate);
 
-    return acc;
-  }, {})
-)
-.sort((a, b) => new Date(a.date) - new Date(b.date))
-.slice(-7);
+  if (day) {
+    day.orders += 1;
+  }
+});
   return (
    <div className="dashboard-wrapper">
       {/* Sidebar */}
@@ -205,7 +214,7 @@ const sortedMonthly = groupedMonthly.sort(
           <div className="chart-box">
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={chartData}>
+             <LineChart data={chartData}>
                <XAxis
   dataKey="date"
   tickFormatter={(d) => new Date(d).toLocaleDateString()}
@@ -252,7 +261,7 @@ const sortedMonthly = groupedMonthly.sort(
         <div className="chart-box">
           <h3>Orders Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={groupedOrdersTrend}>
+           <LineChart data={ordersTrend}>
              <XAxis
   dataKey="date"
   tickFormatter={(d) => new Date(d).toLocaleDateString()}
