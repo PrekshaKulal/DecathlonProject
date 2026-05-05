@@ -5,7 +5,7 @@ import Homepage from "./Homepage";
 import Otp from "./Otp";
 import Register from "./Register";
 import Home from "./Home";
-import Admin from "./Admin";
+//import Admin from "./Admin";
 import Admin_Login from "./Admin_Login";
 import Add_Product from "./Add_Product";
 import Manage_Products from "./Manage_Products";
@@ -18,6 +18,7 @@ import Addresses from "./Addresses";
 import Profile from "./Profile";
 import AdminOrders from "./AdminOrders";
 import Manage_Orders from "./Manage_Orders";
+import Dashboard from "./Dashboard";  
 
 
 function Layout() {
@@ -33,7 +34,7 @@ function Layout() {
         <Route path="/register" element={<Register />} />
         <Route path="/Otp" element={<Otp />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/dashboard" element ={<Dashboard/>}/>
         <Route path="/admin-login" element={<Admin_Login />} />
         <Route path="/add" element={<Add_Product />} />
         <Route path="/add/:id"element={<Add_Product/>}/>
