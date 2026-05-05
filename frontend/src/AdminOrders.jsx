@@ -14,8 +14,26 @@ function AdminOrders() {
   };
  const updateItemStatus = async (orderId, productId, status) => {
   try {
-    await axios.put(`${import.meta.env.VITE_API_URL}/admin/orders/item/${orderId}/${productId}`,{ status });
-    fetchOrders();
+    await axios.put(
+      `${import.meta.env.VITE_API_URL}/admin/orders/item/${orderId}/${productId}`,
+      { status }
+    );
+
+    setOrders(prev =>
+      prev.map(order =>
+        order._id === orderId
+          ? {
+              ...order,
+              products: order.products.map(p =>
+                p.productId.toString() === productId.toString()
+                  ? { ...p, status }
+                  : p
+              )
+            }
+          : order
+      )
+    );
+
   } catch (err) {
     console.log(err);
   }
@@ -60,10 +78,16 @@ function AdminOrders() {
 
         <div>
           <p>Product ID: {p.productId}</p>
-          <p><b>{p.productId?.productName}</b></p>
+          
           <p>Qty: {p.quantity}</p>
           <p className="status"> Status: {p.status || "Placed"}</p>
-          <select className="status-select"  value={p.status || "Placed"} onChange={(e) => updateItemStatus(order._id, p.productId._id, e.target.value) } >
+          <select className="status-select"  value={p.status || "Placed"}onChange={(e) =>
+  updateItemStatus(
+    order._id,
+    p.productId._id || p.productId,
+    e.target.value
+  )
+} >
             <option value="Placed">Placed</option>
             <option value="Packed">Packed</option>
             <option value="Shipped">Shipped</option>
