@@ -7,10 +7,9 @@ import {useState,useEffect} from "react";
 import {FaBars,FaSearch,FaRegUser,FaStore,FaRegCommentDots,FaRegHeart,FaShoppingCart,FaMapMarkerAlt} from "react-icons/fa";
 
 
-function Navbar() {
+function Navbar({ search, setSearch }) {
    const [showMenu, setShowMenu] = useState(false);
    const [activeCategory, setActiveCategory] = useState("men");
-   const [search, setSearch] = useState("");
 
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -24,6 +23,7 @@ useEffect(() => {
   localStorage.removeItem("token");
   setToken(null);
 };
+
 
 return (
   <>
@@ -49,9 +49,10 @@ return (
         <FaSearch className="search-icon" />
         <input
   type="text"
-  placeholder='Search for "Running Shoes"'
+  placeholder="Search products..."
   value={search}
   onChange={(e) => setSearch(e.target.value)}
+  style={{ padding: "8px", margin: "10px", width: "250px" }}
 />
       </div>
       <div className="nav-right">

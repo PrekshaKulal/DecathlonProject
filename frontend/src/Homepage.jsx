@@ -19,6 +19,8 @@ useEffect(() => {
   const filteredProducts = products.filter(product =>
   product.productName.toLowerCase().includes(search.toLowerCase())
 );
+
+  
     return(
         <>
         <div className='homecards'>
@@ -95,13 +97,7 @@ useEffect(() => {
            
           
             <div className='homecards'>
-                <input
-  type="text"
-  placeholder="Search products..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  style={{ padding: "8px", margin: "10px", width: "250px" }}
-/>
+               
 
 {filteredProducts.map((product) => (
 <Link to={`/individual/${product._id}`} className='eachcard' key={product._id}>
