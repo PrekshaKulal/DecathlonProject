@@ -51,22 +51,34 @@ function Dashboard() {
 }));
 
   // ✅ Status Data
- const statusData = [
+const statusData = [
   {
     name: "Delivered",
-    value: orders.filter(
-      o => o?.status?.toLowerCase() === "delivered"
-    ).length
+    value: orders.reduce((count, order) => {
+      return count + order.products.filter(
+        p => p?.status?.toLowerCase() === "delivered"
+      ).length;
+    }, 0)
   },
   {
     name: "Placed",
-    value: orders.filter(
-      o => o?.status?.toLowerCase() === "placed"
-    ).length
+    value: orders.reduce((count, order) => {
+      return count + order.products.filter(
+        p => p?.status?.toLowerCase() === "placed"
+      ).length;
+    }, 0)
+  },
+  {
+    name: "Cancelled",
+    value: orders.reduce((count, order) => {
+      return count + order.products.filter(
+        p => p?.status?.toLowerCase() === "cancelled"
+      ).length;
+    }, 0)
   }
 ];
 
-  const COLORS = ["#00C49F", "#FFBB28"];
+  const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
 
   // ✅ Monthly Orders
   const monthlyData = orders.map(order => ({
