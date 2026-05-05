@@ -10,6 +10,7 @@ import {FaBars,FaSearch,FaRegUser,FaStore,FaRegCommentDots,FaRegHeart,FaShopping
 function Navbar() {
    const [showMenu, setShowMenu] = useState(false);
    const [activeCategory, setActiveCategory] = useState("men");
+   const [search, setSearch] = useState("");
 
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
@@ -47,9 +48,11 @@ return (
       <div className="nav-search">
         <FaSearch className="search-icon" />
         <input
-          type="text"
-          placeholder='Search for "Running Shoes"'
-        />
+  type="text"
+  placeholder='Search for "Running Shoes"'
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
       </div>
       <div className="nav-right">
 

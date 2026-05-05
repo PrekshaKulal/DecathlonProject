@@ -8,12 +8,17 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 function Homepage(){
     const [products, setProducts] = useState([]);
+    const [search, setSearch] = useState("");
  
 
 useEffect(() => {
   axios.get(`${import.meta.env.VITE_API_URL}/GetProducts`)
   .then(res => setProducts(res.data))
   .catch(err => console.log(err));}, []);
+
+  const filteredProducts = products.filter(product =>
+  product.productName.toLowerCase().includes(search.toLowerCase())
+);
     return(
         <>
         <div className='homecards'>
@@ -90,8 +95,15 @@ useEffect(() => {
            
           
             <div className='homecards'>
+                <input
+  type="text"
+  placeholder="Search products..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  style={{ padding: "8px", margin: "10px", width: "250px" }}
+/>
 
-{products.map((product) => (
+{filteredProducts.map((product) => (
 <Link to={`/individual/${product._id}`} className='eachcard' key={product._id}>
 <img src={product.file} alt={product.productName} />
 <p className='bigcardtext'>{product.productName}</p>
