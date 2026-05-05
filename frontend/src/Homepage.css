@@ -1,20 +1,16 @@
-.homecards{
+.homecards {
     display: flex;
-    flex-wrap: wrap;  
-    gap: 20px;       
-    justify-content: center;  
-    padding: 10px 10px;  
-    margin-top: 70px;    
-    margin-bottom: 0;     
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;  /* keeps cards centered */
 }
 
 
-.eachcard{
-    flex:1;
-    width: 50px;
+.eachcard {
+    width: 200px;
+    flex: 0 0 200px;   /* prevents stretching */
     text-align: center;
     cursor: pointer;
-    gap:20px;
 }
 
 .eachcard img{
