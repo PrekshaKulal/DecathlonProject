@@ -54,28 +54,27 @@ function Dashboard() {
   return "Placed";
 };
 
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("en-CA"); 
+};
+// gives YYYY-MM-DD reliably
 
 const last7Days = [];
 
-
-// create last 7 days (including today)
-for (let i = 30; i >= 0; i--) {
- const d = new Date();
-d.setDate(d.getDate() - i);
-  const key = d.toLocaleDateString("en-CA");
+for (let i = 6; i >= 0; i--) {
+  const d = new Date();
+  d.setDate(d.getDate() - i);
 
   last7Days.push({
-    date: key,
+    date: formatDate(d),
     revenue: 0
   });
 }
-
 // fill data from orders
 orders.forEach(order => {
   if (!order.orderDate) return;
 
-  const orderDate = new Date(order.orderDate)
-  .toLocaleDateString("en-CA");
+  const orderDate = formatDate(order.orderDate);
 
   const day = last7Days.find(d => d.date === orderDate);
 
@@ -153,7 +152,7 @@ const sortedMonthly = groupedMonthly.sort(
   orders: 1
 }));*/
 
- const ordersTrend = [...last7Days].map(d => ({
+ const ordersTrend = last7Days.map(d => ({
   date: d.date,
   orders: 0
 }));
@@ -161,8 +160,7 @@ const sortedMonthly = groupedMonthly.sort(
 orders.forEach(order => {
   if (!order.orderDate) return;
 
-  const orderDate = new Date(order.orderDate)
-  .toLocaleDateString("en-CA");
+  const orderDate = formatDate(order.orderDate);
 
   const day = ordersTrend.find(d => d.date === orderDate);
 
@@ -170,6 +168,8 @@ orders.forEach(order => {
     day.orders += 1;
   }
 });
+
+
   return (
    <div className="dashboard-wrapper">
       {/* Sidebar */}
@@ -215,16 +215,11 @@ orders.forEach(order => {
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
              <LineChart data={chartData}>
-               <XAxis
-  dataKey="date"
-  tickFormatter={(d) => new Date(d).toLocaleDateString()}
-/>
+             <XAxis dataKey="date" />
+
+<Tooltip />
                 <YAxis />
-               <Tooltip
-  labelFormatter={(label) =>
-    new Date(label).toLocaleDateString()
-  }
-/>
+               
                <Line type="monotone" dataKey="revenue" stroke="#007bff" />
               </LineChart>
             </ResponsiveContainer>
@@ -264,7 +259,7 @@ orders.forEach(order => {
            <LineChart data={ordersTrend}>
              <XAxis
   dataKey="date"
-  tickFormatter={(d) => new Date(d).toLocaleDateString()}
+  
 />
               <YAxis />
              <Tooltip
