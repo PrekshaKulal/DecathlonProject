@@ -59,9 +59,9 @@ const chartData = Object.values(
   orders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
 
-    const dateKey = new Date(order.orderDate)
-      .toISOString()
-      .split("T")[0];
+   const dateKey = new Date(order.orderDate)
+  .toISOString()
+  .split("T")[0];
 
     if (!acc[dateKey]) {
       acc[dateKey] = { date: dateKey, revenue: 0 };
@@ -81,7 +81,7 @@ const statusData = [
   {
     name: "Delivered",
     value: orders.reduce((count, order) => {
-      return count + order.products.filter(
+      return count + (order.products || []).filter(
         p => p?.status?.toLowerCase() === "delivered"
       ).length;
     }, 0)
@@ -89,7 +89,7 @@ const statusData = [
   {
     name: "Placed",
     value: orders.reduce((count, order) => {
-      return count + order.products.filter(
+      return count +(order.products || []).filter(
         p => p?.status?.toLowerCase() === "placed"
       ).length;
     }, 0)
@@ -97,7 +97,7 @@ const statusData = [
   {
     name: "Cancelled",
     value: orders.reduce((count, order) => {
-      return count + order.products.filter(
+      return count + (order.products || []).filter(
         p => p?.status?.toLowerCase() === "cancelled"
       ).length;
     }, 0)
@@ -105,9 +105,7 @@ const statusData = [
 ];
 
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
-
-  // ✅ Monthly Orders
- const monthlyData = Object.values(
+const monthlyData = Object.values(
   orders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
 
@@ -131,32 +129,26 @@ const statusData = [
   }, {})
 ).sort((a, b) => a.sortKey - b.sortKey);
 
-  const groupedMonthly = Object.values(
-  monthlyData.reduce((acc, curr) => {
-    if (!acc[curr.month]) {
-      acc[curr.month] = { month: curr.month, orders: 0 };
-    }
-    acc[curr.month].orders += 1;
-    return acc;
-  }, {})
-);
+  /*
 const sortedMonthly = groupedMonthly.sort(
   (a, b) => new Date(a.month) - new Date(b.month)
-);
+);*/
 
   // ✅ Orders Trend
- const orderTrendData = orders.slice(0, 7).map(order => ({
+ /*const orderTrendData = orders.slice(0, 7).map(order => ({
   date: order?.orderDate
     ? new Date(order.orderDate).toLocaleDateString()
     : "N/A",
   orders: 1
-}));
+}));*/
 
  const groupedOrdersTrend = Object.values(
   orders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
 
-    const date = new Date(order.orderDate).toLocaleDateString();
+    const date = new Date(order.orderDate)
+      .toISOString()
+      .split("T")[0];
 
     if (!acc[date]) {
       acc[date] = { date, orders: 0 };
@@ -178,6 +170,8 @@ const sortedMonthly = groupedMonthly.sort(
         <p onClick={() => navigate("/manage")}>Manage Product</p>
         <p onClick={() => navigate("/admin/orders")}>Manage Orders</p>
         <p onClick={() => navigate("/view-users")}>Manage Users</p>
+         <p onClick={() => navigate("/admin-login")}>Logout</p>
+         
       </div>
 
       {/* Main */}
@@ -212,13 +206,17 @@ const sortedMonthly = groupedMonthly.sort(
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
-                <XAxis
+               <XAxis
   dataKey="date"
   tickFormatter={(d) => new Date(d).toLocaleDateString()}
 />
                 <YAxis />
-                <Tooltip />
-                <Line dataKey="revenue" />
+               <Tooltip
+  labelFormatter={(label) =>
+    new Date(label).toLocaleDateString()
+  }
+/>
+               <Line type="monotone" dataKey="revenue" stroke="#007bff" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -241,11 +239,11 @@ const sortedMonthly = groupedMonthly.sort(
         <div className="chart-box">
           <h3>Monthly Orders</h3>
           <ResponsiveContainer width="100%" height={250}>
-           <BarChart data={sortedMonthly}>
+          <BarChart data={monthlyData}>
               <XAxis dataKey="month" />
               <YAxis />
-              <Tooltip />
-              <Bar dataKey="orders" />
+           <Tooltip />
+             <Bar dataKey="orders" fill="#007bff" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -255,10 +253,17 @@ const sortedMonthly = groupedMonthly.sort(
           <h3>Orders Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={groupedOrdersTrend}>
-              <XAxis dataKey="date" />
+             <XAxis
+  dataKey="date"
+  tickFormatter={(d) => new Date(d).toLocaleDateString()}
+/>
               <YAxis />
-              <Tooltip />
-              <Line dataKey="orders" />
+             <Tooltip
+  labelFormatter={(label) =>
+    new Date(label).toLocaleDateString()
+  }
+/>
+             <Line type="monotone" dataKey="orders" stroke="#28a745" />
             </LineChart>
           </ResponsiveContainer>
         </div>
