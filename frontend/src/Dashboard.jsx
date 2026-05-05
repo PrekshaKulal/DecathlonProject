@@ -55,18 +55,16 @@ function Dashboard() {
 };
 
   // ✅ Revenue Trend
- const chartData = Object.values(
+const chartData = Object.values(
   orders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
 
-    const dateObj = new Date(order.orderDate);
-    const dateKey = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
+    const dateKey = new Date(order.orderDate)
+      .toISOString()
+      .split("T")[0];
 
     if (!acc[dateKey]) {
-      acc[dateKey] = {
-        date: dateKey,
-        revenue: 0
-      };
+      acc[dateKey] = { date: dateKey, revenue: 0 };
     }
 
     acc[dateKey].revenue += order.totalAmount || 0;
@@ -75,7 +73,7 @@ function Dashboard() {
   }, {})
 )
 .sort((a, b) => new Date(a.date) - new Date(b.date))
-.slice(-7); // last 7 days only
+.slice(-7);
 
   // ✅ Status Data
 const statusData = [
@@ -110,14 +108,17 @@ const statusData = [
   // ✅ Monthly Orders
  const monthlyData = Object.values(
   orders.reduce((acc, order) => {
-    if (!order.createdAt) return acc;
+    if (!order.orderDate) return acc;
 
-    const date = new Date(order.createdAt);
-    const key = `${date.getFullYear()}-${date.getMonth()}`; // safe key
+    const date = new Date(order.orderDate);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
 
     if (!acc[key]) {
       acc[key] = {
-        month: date.toLocaleString("default", { month: "short", year: "numeric" }),
+        month: date.toLocaleString("default", {
+          month: "short",
+          year: "numeric"
+        }),
         orders: 0,
         sortKey: new Date(date.getFullYear(), date.getMonth())
       };
@@ -128,6 +129,7 @@ const statusData = [
     return acc;
   }, {})
 ).sort((a, b) => a.sortKey - b.sortKey);
+
   const groupedMonthly = Object.values(
   monthlyData.reduce((acc, curr) => {
     if (!acc[curr.month]) {
@@ -149,14 +151,23 @@ const sortedMonthly = groupedMonthly.sort(
   orders: 1
 }));
 
-  const groupedOrdersTrend = Object.values(
-    orderTrendData.reduce((acc, curr) => {
-      acc[curr.date] = acc[curr.date] || { date: curr.date, orders: 0 };
-      acc[curr.date].orders += 1;
-      return acc;
-    }, {})
-  );
+ const groupedOrdersTrend = Object.values(
+  orders.reduce((acc, order) => {
+    if (!order.orderDate) return acc;
 
+    const date = new Date(order.orderDate).toLocaleDateString();
+
+    if (!acc[date]) {
+      acc[date] = { date, orders: 0 };
+    }
+
+    acc[date].orders += 1;
+
+    return acc;
+  }, {})
+)
+.sort((a, b) => new Date(a.date) - new Date(b.date))
+.slice(-7);
   return (
    <div className="dashboard-wrapper">
       {/* Sidebar */}
