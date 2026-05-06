@@ -9,20 +9,20 @@
 }
 .addcards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);  /* 🔥 exactly 4 per row */
+    grid-template-columns: repeat(4, 1fr); 
     gap: 20px;
     padding: 10px;
 }
 .addedcard {
-    width: 100%;          /* fills grid column */
-    max-width: 220px;     /* optional limit */
+    width: 100%;         
+    max-width: 220px;    
     text-align: center;
     cursor: pointer;
 }
 .addedcard img {
     width: 100%;
     height: 180px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 8px;
 }
 
