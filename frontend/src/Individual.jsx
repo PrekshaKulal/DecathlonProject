@@ -80,17 +80,24 @@ await axios.post(
  <div className="product-details">
 
   <div className="product-image-container">
-    <img src={product.file} alt={product.productName} className="product-image"/>
-  
-</div>
-  <div className="product-content">
-    <h2 className="product-name" style={{color: "blue"}}>{product.productName}</h2>
-    <h3 className="price">Rs {product.productPrice}</h3>
-    <p className="description">{product.productDescription}</p>
+    <img 
+      src={product.file} 
+      alt={product.productName} 
+      className="product-image"
+    />
   </div>
-  <button className="add-to-cart-btn" onClick={(addToCart)} > Add to Cart </button>
-</div>
 
+  <div className="product-content">
+    <h2 className="product-name">{product.productName}</h2>
+    <h3 className="price">₹ {product.productPrice}</h3>
+    <p className="description">{product.productDescription}</p>
+
+    <button className="add-to-cart-btn" onClick={addToCart}>
+      Add to Cart
+    </button>
+  </div>
+
+</div>
     </>
   );
 }
