@@ -134,3 +134,10 @@
   flex-direction: column;
   align-items: center;
 }
+
+.chart-box h3{
+  color:"#007bff";
+}
+.pie-box h3{
+  color:"#007bff";
+}

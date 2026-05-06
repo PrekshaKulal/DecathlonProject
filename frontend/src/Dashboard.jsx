@@ -170,7 +170,7 @@ function Dashboard() {
   interval="preserveStartEnd"
 />
   <YAxis 
-    label={{ value: "Revenue (₹)", angle: -90, position: "insideLeft" }} 
+    label={{ value: "Revenue", angle: -90, position: "insideLeft" }} 
   />
   <Tooltip formatter={(value) => `₹ ${value}`} />
   <Line 
@@ -216,7 +216,7 @@ function Dashboard() {
   interval="preserveStartEnd"
 />
   <YAxis 
-    label={{ value: "Number of Orders", angle: -90, position: "insideLeft" }} 
+    label={{ value: "No of Orders", angle: -90, position: "insideLeft" }} 
   />
   <Tooltip formatter={(value) => `${value} Orders`} />
   <Bar 
