@@ -129,34 +129,37 @@ const statusData = [
 ];
 
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
-const sortedData = Object.values(
-  allOrders.reduce((acc, order) => {
-    if (!order.orderDate) return acc;
+const monthlyMap = {};
 
-    const date = new Date(order.orderDate);
-    const key = date.toLocaleString("en-CA", {
-  year: "numeric",
-  month: "2-digit"
+allOrders.forEach(order => {
+  const rawDate = order.orderDate || order.date;
+  if (!rawDate) return;
+
+  const date = new Date(rawDate);
+
+  const key = `${date.getFullYear()}-${date.getMonth()}`; 
+  const monthLabel = date.toLocaleString("default", {
+    month: "short",
+    year: "numeric"
+  });
+
+  if (!monthlyMap[key]) {
+    monthlyMap[key] = {
+      month: monthLabel,
+      orders: 0,
+      sortDate: new Date(date.getFullYear(), date.getMonth(), 1)
+    };
+  }
+
+  monthlyMap[key].orders += 1;
 });
 
-    if (!acc[key]) {
-      acc[key] = {
-        month: date.toLocaleString("default", {
-          month: "short",
-          year: "numeric"
-        }),
-        orders: 0,
-        sortKey: new Date(date.getFullYear(), date.getMonth())
-      };
-    }
-
-    acc[key].orders += 1;
-    return acc;
-  }, {})
-).sort((a, b) => a.sortKey - b.sortKey);
+const monthlyData = Object.values(monthlyMap).sort(
+  (a, b) => a.sortDate - b.sortDate
+);
 
 
-const monthlyData = sortedData;
+
 
   /*
 const sortedMonthly = groupedMonthly.sort(
@@ -264,7 +267,7 @@ orders.forEach(order => {
 
   <ResponsiveContainer width="100%" height={250}>
     <BarChart data={monthlyData}>
-      <XAxis dataKey="month" />
+     <XAxis dataKey="month" />
       <YAxis />
       <Tooltip />
 <Bar dataKey="orders" fill="#007bff" name="Orders" />
