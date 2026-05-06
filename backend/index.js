@@ -295,11 +295,6 @@ const generateInvoicePDF = async (order) => {
       doc.on("end", () => {
         resolve(Buffer.concat(buffers));
       });
-
-      /* ===============================
-         LOGO SECTION (SVG IMAGE)
-      =============================== */
-
       const logoUrl =
         "https://res.cloudinary.com/dqggnkv9n/image/upload/v1777271769/decathlon-logo-vp-DDH3S1xy_smdrby.svg";
 
@@ -310,11 +305,6 @@ const generateInvoicePDF = async (order) => {
         width: 140,
         height: 40
       });
-
-      /* ===============================
-         COMPANY DETAILS
-      =============================== */
-
       doc
         .fontSize(10)
         .fillColor("black")
@@ -323,35 +313,19 @@ const generateInvoicePDF = async (order) => {
         .text("support@decathlon.com", 350, 50)
         .text("+91 6238485389", 350, 65);
 
-      /* ===============================
-         HEADER BAR
-      =============================== */
-
       doc.rect(30, 90, 535, 30).fill("#007BFF");
 
       doc
         .fillColor("white")
         .fontSize(18)
         .text("PAYMENT RECEIPT", 190, 98);
-
-      doc.fillColor("black");
-
-      /* ===============================
-         ORDER DETAILS
-      =============================== */
-
       doc.fontSize(11);
 
-      doc.text(`Invoice No: INV-${Date.now()}`, 30, 140);
+      doc.fillColor("black").text(`Invoice No: INV-${Date.now()}`, 30, 140);
       doc.text(`Order ID: ${order._id}`);
       doc.text(`Date: ${new Date().toLocaleDateString("en-IN")}`);
       doc.text(`Payment: ${order.paymentMethod}`);
       doc.text(`Status: ${order.status || "Placed"}`);
-
-      /* ===============================
-         CUSTOMER BOX
-      =============================== */
-
       doc.rect(30, 240, 535, 90).stroke();
 
       doc
@@ -373,11 +347,6 @@ const generateInvoicePDF = async (order) => {
           284
         )
         .text(`${order.addressDetails.Pincode}`, 260, 300);
-
-      /* ===============================
-         PRODUCT TABLE
-      =============================== */
-
       let rows = [];
       let subtotal = 0;
 
@@ -409,11 +378,6 @@ const generateInvoicePDF = async (order) => {
           width: 535
         }
       );
-
-      /* ===============================
-         TOTALS
-      =============================== */
-
       const gst = subtotal * 0.18;
       const grandTotal = subtotal + gst;
 
@@ -433,10 +397,6 @@ const generateInvoicePDF = async (order) => {
         .text(`Grand Total : Rs ${grandTotal.toFixed(2)}`, {
           align: "right"
         });
-
-      /* ===============================
-         FOOTER
-      =============================== */
 
       doc.moveDown(2);
 
@@ -701,10 +661,10 @@ app.post("/create-order", authMiddleware, async (req, res) => {
       }
       subtotal += Number(product.productPrice) * Number(item.quantity);
     }
-    const gst = subtotal * 0.18;   // 18%
+    const gst = subtotal * 0.18;  
     const finalAmount = subtotal + gst;
     const options = {
-      amount: Math.round(finalAmount * 100), // paisa
+      amount: Math.round(finalAmount * 100), 
       currency: "INR",
       receipt: "order_rcptid_" + Date.now(),
     };
@@ -978,16 +938,19 @@ app.get("/admin/stats", async (req, res) => {
 });
 app.get("/admin/recent-orders", async (req, res) => {
   try {
-    const orders = await OrderModel.find()
-     .sort({ orderDate: -1 })
-      .limit(50);
+    const last7Days = new Date();
+    last7Days.setDate(last7Days.getDate() - 6);
+    last7Days.setHours(0, 0, 0, 0);
+
+    const orders = await OrderModel.find({
+      orderDate: { $gte: last7Days }
+    });
 
     res.json(orders);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching recent orders" });
+    res.status(500).json({ error: "Error fetching orders" });
   }
 });
-
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
 });
