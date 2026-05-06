@@ -36,6 +36,9 @@
 .dashboard-main {
   flex: 1;
   padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;  
 }
 
 
@@ -68,6 +71,7 @@
 .bottom-section {
   display: flex;
   gap: 20px;
+  margin-bottom: 20px;  
 }
 
 
@@ -79,11 +83,10 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
- 
-  min-width: 0; 
+  min-width: 0;
 
+  margin-bottom: 20px;  
 }
-
 .fake-chart {
   height: 200px;
   margin-top: 10px;
@@ -133,11 +136,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-}
 
-.chart-box h3{
-  color:"#007bff";
+  min-width: 300px; 
 }
-.pie-box h3{
-  color:"#007bff";
+.chart-box h3,
+.pie-box h3 {
+  color: #007bff;   
+  margin-bottom: 10px;
 }
