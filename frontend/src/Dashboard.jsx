@@ -57,7 +57,7 @@ function Dashboard() {
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("en-CA"); 
 };
-// gives YYYY-MM-DD reliably
+
 
 const last7Days = [];
 
@@ -70,7 +70,7 @@ for (let i = 6; i >= 0; i--) {
     revenue: 0
   });
 }
-// fill data from orders
+
 orders.forEach(order => {
   if (!order.orderDate) return;
 
@@ -85,8 +85,6 @@ orders.forEach(order => {
 
 const chartData = last7Days;
 
-
-  // ✅ Status Data
 const statusData = [
   {
     name: "Delivered",
@@ -172,7 +170,7 @@ orders.forEach(order => {
 
   return (
    <div className="dashboard-wrapper">
-      {/* Sidebar */}
+      
       <div className="sidebar">
         <p className="active">Dashboard</p>
         <p onClick={() => navigate("/add")}>Add Product</p>
@@ -183,12 +181,12 @@ orders.forEach(order => {
          
       </div>
 
-      {/* Main */}
+     
       <div className="dashboard-main">
 
         <h2 style={{color:" #007bff"}}>Welcome to Admin Dashboard</h2>
 
-        {/* Stats */}
+   
         <div className="stats-cards">
           <div className="card">
             <p style={{color:" #007bff"}}>{stats?.totalProducts || 0}</p>
@@ -208,7 +206,7 @@ orders.forEach(order => {
           </div>
         </div>
 
-        {/* Charts */}
+       
         <div className="bottom-section">
 
           <div className="chart-box">

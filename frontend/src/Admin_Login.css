@@ -51,7 +51,7 @@
     margin: 10px 0;
     border-radius: 4px;
     border: 1px solid #ccc;
-    box-sizing: border-box;   /* IMPORTANT */
+    box-sizing: border-box;   
 }
 .next{
     width:100%;
