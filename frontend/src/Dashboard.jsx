@@ -156,10 +156,7 @@ const sortedData = Object.values(
 ).sort((a, b) => a.sortKey - b.sortKey);
 
 
-const monthlyData = sortedData.map((item, index) => ({
-  ...item,
-  prevOrders: index > 0 ? sortedData[index - 1].orders : 0
-}));
+const monthlyData = sortedData;
 
   /*
 const sortedMonthly = groupedMonthly.sort(
@@ -270,8 +267,7 @@ orders.forEach(order => {
       <XAxis dataKey="month" />
       <YAxis />
       <Tooltip />
-<Bar dataKey="prevOrders" fill="#B81010" name="Previous Month" /> 
-      <Bar dataKey="orders" fill="#007bff" name="Current Month" />
+<Bar dataKey="orders" fill="#007bff" name="Orders" />
       
     </BarChart>
   </ResponsiveContainer>
