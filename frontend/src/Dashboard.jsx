@@ -251,9 +251,9 @@ orders.forEach(order => {
       <XAxis dataKey="month" />
       <YAxis />
       <Tooltip />
-
+<Bar dataKey="prevOrders" fill="#B81010" name="Previous Month" /> 
       <Bar dataKey="orders" fill="#007bff" name="Current Month" />
-      <Bar dataKey="prevOrders" fill="#c0c0c0" name="Previous Month" />
+      
     </BarChart>
   </ResponsiveContainer>
 </div>
