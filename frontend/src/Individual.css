@@ -3,16 +3,16 @@ body {
     background: #f5f5f5;
 }
 .product-content {
-    display: flex;            
+    display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;      
-    text-align: center;         
-    
+    align-items: center;
+    text-align: center;
+
     background: #fff;
-    margin-top: 90px;
+    margin-top: 20px;   /* reduced from 90px */
     padding: 20px;
-    border-radius: 20px 20px 0 0;
+    border-radius: 20px;
 }
 .product-name {
     font-size: 22px;
@@ -26,10 +26,9 @@ body {
     text-align: center;
 }
 .description {
-    font-weight: bold;
+    font-weight: normal;   /* change from bold */
     color: #555;
     line-height: 1.5;
-    text-align: center;
     max-width: 500px; 
 }
 .product-details {
@@ -39,37 +38,37 @@ body {
 .product-image-container {
     margin-top: 70px;
     width: 100%;
-    height: 300px; 
     background: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px 0;      /* instead of fixed height */
 }
 
+/* IMPORTANT FIX */
 .product-image-container img {
-    margin-top:110px;
-    width: 400px;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 10px;
+    width: 100%;
+    max-width: 250px;     /* control size */
+    height: auto;         /* maintain ratio */
+    object-fit: contain;  /* show full image */
+    margin-top: 0;        /* remove this bug */
 }
-
 
 
 
 
 .add-to-cart-btn {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
     width: 90%;
+    max-width: 400px;
     padding: 15px;
     background: #ffcc00;
     border: none;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-   
+    border-radius: 10px;
+    margin: 20px auto;   /* center it */
+    display: block;
 }
 .add-to-cart-btn:hover {
     background: #ff9900;
