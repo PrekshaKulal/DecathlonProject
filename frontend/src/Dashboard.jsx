@@ -113,7 +113,7 @@ const statusData = [
 ];
 
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
-const monthlyData = Object.values(
+const sortedData = Object.values(
   orders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
 
@@ -132,17 +132,22 @@ const monthlyData = Object.values(
     }
 
     acc[key].orders += 1;
-
     return acc;
   }, {})
 ).sort((a, b) => a.sortKey - b.sortKey);
+
+
+const monthlyData = sortedData.map((item, index) => ({
+  ...item,
+  prevOrders: index > 0 ? sortedData[index - 1].orders : 0
+}));
 
   /*
 const sortedMonthly = groupedMonthly.sort(
   (a, b) => new Date(a.month) - new Date(b.month)
 );*/
 
-  // ✅ Orders Trend
+ 
  /*const orderTrendData = orders.slice(0, 7).map(order => ({
   date: order?.orderDate
     ? new Date(order.orderDate).toLocaleDateString()
@@ -237,20 +242,23 @@ orders.forEach(order => {
 
         </div>
 
-        {/* Monthly */}
-        <div className="chart-box">
-          <h3>Monthly Orders</h3>
-          <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={monthlyData}>
-              <XAxis dataKey="month" />
-              <YAxis />
-           <Tooltip />
-             <Bar dataKey="orders" fill="#007bff" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        
+       <div className="chart-box">
+  <h3>Monthly Orders</h3>
 
-        {/* Trend */}
+  <ResponsiveContainer width="100%" height={250}>
+    <BarChart data={monthlyData}>
+      <XAxis dataKey="month" />
+      <YAxis />
+      <Tooltip />
+
+      <Bar dataKey="orders" fill="#007bff" name="Current Month" />
+      <Bar dataKey="prevOrders" fill="#c0c0c0" name="Previous Month" />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
+       
         <div className="chart-box">
           <h3>Orders Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -270,7 +278,7 @@ orders.forEach(order => {
           </ResponsiveContainer>
         </div>
 
-        {/* Orders */}
+       
         <div className="orders-box">
           <h3>Recent Orders</h3>
 
