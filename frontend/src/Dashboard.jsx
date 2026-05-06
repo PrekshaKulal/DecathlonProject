@@ -56,8 +56,11 @@ function Dashboard() {
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-CA");
-  };
+  return new Date(date).toLocaleDateString("en-IN", {
+    month: "short",
+    day: "numeric"
+  });
+};
   const last7Days = [];
 
   for (let i = 6; i >= 0; i--) {
@@ -156,12 +159,16 @@ function Dashboard() {
  
           <div className="chart-box">
             <h3>Revenue Trend</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={chartData}>
-  <XAxis 
-    dataKey="date" 
-    label={{ value: "Date", position: "insideBottom", offset: -5 }} 
-  />
+           <ResponsiveContainer width="100%" height={300}>
+             <LineChart 
+  data={chartData}
+  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+>
+ <XAxis 
+  dataKey="date"
+  tick={{ fontSize: 12 }}
+  interval="preserveStartEnd"
+/>
   <YAxis 
     label={{ value: "Revenue (₹)", angle: -90, position: "insideLeft" }} 
   />
@@ -180,13 +187,10 @@ function Dashboard() {
           <div className="pie-box">
             <h3>Status</h3>
             <PieChart width={300} height={300}>
-              <Pie
+  <Pie
   data={statusData}
   dataKey="value"
-  outerRadius={80}
-  label={({ name, percent }) =>
-    `${name} (${(percent * 100).toFixed(0)}%)`
-  }
+  outerRadius={90}
 >
   {statusData.map((_, i) => (
     <Cell key={i} fill={COLORS[i]} />
@@ -201,12 +205,16 @@ function Dashboard() {
        
         <div className="chart-box">
           <h3>Orders Trend</h3>
-          <ResponsiveContainer width="100%" height={250}>
-           <BarChart data={chartData}>
+         <ResponsiveContainer width="100%" height={300}>
+          <BarChart 
+  data={chartData}
+  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+>
   <XAxis 
-    dataKey="date" 
-    label={{ value: "Date", position: "insideBottom", offset: -5 }} 
-  />
+  dataKey="date"
+  tick={{ fontSize: 12 }}
+  interval="preserveStartEnd"
+/>
   <YAxis 
     label={{ value: "Number of Orders", angle: -90, position: "insideLeft" }} 
   />
