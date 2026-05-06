@@ -158,22 +158,40 @@ function Dashboard() {
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
-                <XAxis dataKey="date" />
-                <Tooltip />
-                <YAxis />
-                <Line type="monotone" dataKey="revenue" stroke="#007bff" />
-              </LineChart>
+  <XAxis 
+    dataKey="date" 
+    label={{ value: "Date", position: "insideBottom", offset: -5 }} 
+  />
+  <YAxis 
+    label={{ value: "Revenue (₹)", angle: -90, position: "insideLeft" }} 
+  />
+  <Tooltip formatter={(value) => `₹ ${value}`} />
+  <Line 
+    type="monotone" 
+    dataKey="revenue" 
+    stroke="#007bff" 
+    name="Revenue"
+  />
+  <Legend />
+</LineChart>
             </ResponsiveContainer>
           </div>
 
           <div className="pie-box">
             <h3>Status</h3>
-            <PieChart width={250} height={250}>
-              <Pie data={statusData} dataKey="value" outerRadius={80}>
-                {statusData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
-                ))}
-              </Pie>
+            <PieChart width={300} height={300}>
+              <Pie
+  data={statusData}
+  dataKey="value"
+  outerRadius={80}
+  label={({ name, percent }) =>
+    `${name} (${(percent * 100).toFixed(0)}%)`
+  }
+>
+  {statusData.map((_, i) => (
+    <Cell key={i} fill={COLORS[i]} />
+  ))}
+</Pie>
               <Legend />
             </PieChart>
           </div>
@@ -184,12 +202,22 @@ function Dashboard() {
         <div className="chart-box">
           <h3>Orders Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={chartData}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="orders" fill="#28a745" name="Orders" />
-            </BarChart>
+           <BarChart data={chartData}>
+  <XAxis 
+    dataKey="date" 
+    label={{ value: "Date", position: "insideBottom", offset: -5 }} 
+  />
+  <YAxis 
+    label={{ value: "Number of Orders", angle: -90, position: "insideLeft" }} 
+  />
+  <Tooltip formatter={(value) => `${value} Orders`} />
+  <Bar 
+    dataKey="orders" 
+    fill="#28a745" 
+    name="Orders"
+  />
+  <Legend />
+</BarChart>
           </ResponsiveContainer>
         </div>
 
