@@ -951,6 +951,10 @@ app.get("/admin/recent-orders", async (req, res) => {
     res.status(500).json({ error: "Error fetching orders" });
   }
 });
+app.get("/admin/all-orders", async (req, res) => {
+  const orders = await OrderModel.find();
+  res.json(orders);
+});
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
 });

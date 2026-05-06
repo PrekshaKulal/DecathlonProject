@@ -14,10 +14,13 @@ function Dashboard() {
 
   const [stats, setStats] = useState({});
   const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
 
   useEffect(() => {
     fetchStats();
     fetchOrders();
+    
+     fetchAllOrders(); 
   }, []);
 
   const fetchStats = async () => {
@@ -41,6 +44,19 @@ function Dashboard() {
       console.log(err);
     }
   };
+ 
+
+const fetchAllOrders = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URL}/admin/all-orders`
+    );
+    setAllOrders(res.data || []);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
   const getOrderStatus = (order) => {
   if (!order.products) return "Placed";
 
@@ -114,11 +130,14 @@ const statusData = [
 
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
 const sortedData = Object.values(
-  orders.reduce((acc, order) => {
+  allOrders.reduce((acc, order) => {
     if (!order.orderDate) return acc;
 
     const date = new Date(order.orderDate);
-    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    const key = date.toLocaleString("en-CA", {
+  year: "numeric",
+  month: "2-digit"
+});
 
     if (!acc[key]) {
       acc[key] = {
