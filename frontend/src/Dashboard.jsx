@@ -194,6 +194,9 @@ function Dashboard() {
     <Cell key={i} fill={COLORS[i]} />
   ))}
 </Pie>
+ <Tooltip
+      formatter={(value, name) => [`${value} Orders`, name]}
+    />
               <Legend />
             </PieChart>
           </div>
