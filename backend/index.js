@@ -143,14 +143,20 @@ const sendOrderEmail = async (email, status, order, pdfBuffer = null) => {
       to: email,
       from: process.env.EMAIL_USER,
       subject: `Order Update - ${status}`,
+html: `
+  <h2>Order Update</h2>
+  <p>Your order <b>${order._id}</b> status is now:</p>
+  <h3>${status}</h3>
 
-      html: `
-        <h2>Order Update</h2>
-        <p>Your order <b>${order._id}</b> status is now:</p>
-        <h3>${status}</h3>
-        <p>Total Amount: ₹${order.totalAmount}</p>
-        <p>Thank you for shopping with us.</p>
-      `
+  ${
+    status === "Cancelled"
+      ? `<p>Refund Amount: ₹${order.totalAmount}</p>`
+      : ""
+  }
+
+  <p>Updated Total Amount: ₹${order.totalAmount}</p>
+  <p>Invoice attached.</p>
+`
     };
 
     if (pdfBuffer) {
@@ -350,7 +356,7 @@ const generateInvoicePDF = async (order) => {
       let rows = [];
       let subtotal = 0;
 
-      for (let item of order.products) {
+      for (let item of order.products.filter(p => p.status !== "Cancelled")) {
         const product = await ProductModel.findById(item.productId);
 
         const qty = Number(item.quantity);
@@ -731,19 +737,54 @@ app.post('/orders', authMiddleware, async (req, res) => {
 app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, res) => {
   try {
     const { orderId, productId } = req.params;
+
     const order = await OrderModel.findById(orderId);
     if (!order) return res.status(404).json({ error: "Order not found" });
-    order.products = order.products.map(p => {
-  if (p.productId.toString() === productId) {
-    return { ...p.toObject(), status: "Cancelled" };
-  }
-  return p;
-});
+
+    let refundAmount = 0;
+
+    for (let item of order.products) {
+      if (item.productId.toString() === productId && item.status !== "Cancelled") {
+        
+        const product = await ProductModel.findById(item.productId);
+
+        const itemTotal = product.productPrice * item.quantity;
+
+        refundAmount += itemTotal;
+
+        item.status = "Cancelled";
+      }
+    }
+
+    // ✅ Reduce amount
+    order.totalAmount = order.totalAmount - refundAmount;
+
+    // (Optional but better) recalc GST again
+    const subtotal = order.products
+      .filter(p => p.status !== "Cancelled")
+      .reduce(async (sum, item) => {
+        const product = await ProductModel.findById(item.productId);
+        return sum + (product.productPrice * item.quantity);
+      }, 0);
+
     await order.save();
-    const user = await UserModel.findById(order.userId); 
-   await sendOrderEmail(user.email, "Cancelled", order); 
-    res.json({ success: true, message: "Item cancelled" });
+
+    const user = await UserModel.findById(order.userId);
+
+    // ✅ Generate updated invoice
+    const pdfBuffer = await generateInvoicePDF(order);
+
+    // ✅ Send email with invoice
+    await sendOrderEmail(user.email, "Cancelled", order, pdfBuffer);
+
+    res.json({
+      success: true,
+      message: "Item cancelled & refund updated",
+      refundAmount
+    });
+
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Cancel failed" });
   }
 });
