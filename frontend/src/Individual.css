@@ -10,7 +10,7 @@ body {
     text-align: center;
 
     background: #fff;
-    margin-top: 20px;   /* reduced from 90px */
+    margin-top: 20px; 
     padding: 20px;
     border-radius: 20px;
 }
@@ -26,7 +26,7 @@ body {
     text-align: center;
 }
 .description {
-    font-weight: normal;   /* change from bold */
+    font-weight: normal;  
     color: #555;
     line-height: 1.5;
     max-width: 500px; 
@@ -42,20 +42,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px 0;      /* instead of fixed height */
+    padding: 20px 0;    
 }
 
-/* IMPORTANT FIX */
 .product-image-container img {
     width: 100%;
-    max-width: 250px;     /* control size */
-    height: auto;         /* maintain ratio */
-    object-fit: contain;  /* show full image */
-    margin-top: 0;        /* remove this bug */
+    max-width: 250px;    
+    object-fit: contain;  
+    margin-top: 0;       
 }
-
-
-
 
 .add-to-cart-btn {
     width: 90%;
@@ -67,7 +62,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     border-radius: 10px;
-    margin: 20px auto;   /* center it */
+    margin: 20px auto;  
     display: block;
 }
 .add-to-cart-btn:hover {

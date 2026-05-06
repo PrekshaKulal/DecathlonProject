@@ -150,7 +150,7 @@ html: `
 
   ${
     status === "Cancelled"
-      ? `<p>Refund Amount: ₹${order.totalAmount}</p>`
+      ? `<p>Amount will be refunded</p>`
       : ""
   }
 
@@ -756,10 +756,9 @@ app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, r
       }
     }
 
-    // ✅ Reduce amount
+    
     order.totalAmount = order.totalAmount - refundAmount;
 
-    // (Optional but better) recalc GST again
     const subtotal = order.products
       .filter(p => p.status !== "Cancelled")
       .reduce(async (sum, item) => {
@@ -771,10 +770,8 @@ app.put("/orders/cancel-item/:orderId/:productId", authMiddleware, async (req, r
 
     const user = await UserModel.findById(order.userId);
 
-    // ✅ Generate updated invoice
+   
     const pdfBuffer = await generateInvoicePDF(order);
-
-    // ✅ Send email with invoice
     await sendOrderEmail(user.email, "Cancelled", order, pdfBuffer);
 
     res.json({
