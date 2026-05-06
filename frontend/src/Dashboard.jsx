@@ -14,13 +14,10 @@ function Dashboard() {
 
   const [stats, setStats] = useState({});
   const [orders, setOrders] = useState([]);
-  const [allOrders, setAllOrders] = useState([]);
 
   useEffect(() => {
     fetchStats();
     fetchOrders();
-    
-     fetchAllOrders(); 
   }, []);
 
   const fetchStats = async () => {
@@ -44,188 +41,111 @@ function Dashboard() {
       console.log(err);
     }
   };
- 
-
-const fetchAllOrders = async () => {
-  try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_URL}/admin/all-orders`
-    );
-    setAllOrders(res.data || []);
-  } catch (err) {
-    console.log(err);
-  }
-};
 
   const getOrderStatus = (order) => {
-  if (!order.products) return "Placed";
+    if (!order.products) return "Placed";
 
-  const statuses = order.products.map(p => p.status);
+    const statuses = order.products.map(p => p.status);
 
-  if (statuses.includes("Cancelled")) return "Cancelled";
-  if (statuses.every(s => s === "Delivered")) return "Delivered";
-  if (statuses.includes("Shipped")) return "Shipped";
-  if (statuses.includes("Packed")) return "Packed";
+    if (statuses.includes("Cancelled")) return "Cancelled";
+    if (statuses.every(s => s === "Delivered")) return "Delivered";
+    if (statuses.includes("Shipped")) return "Shipped";
+    if (statuses.includes("Packed")) return "Packed";
 
-  return "Placed";
-};
+    return "Placed";
+  };
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("en-CA"); 
-};
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-CA");
+  };
+  const last7Days = [];
 
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
 
-const last7Days = [];
+    last7Days.push({
+      date: formatDate(d),
+      revenue: 0,
+      orders: 0
+    });
+  }
+  orders.forEach(order => {
+    if (!order.orderDate) return;
 
-for (let i = 6; i >= 0; i--) {
-  const d = new Date();
-  d.setDate(d.getDate() - i);
+    const orderDate = formatDate(order.orderDate);
 
-  last7Days.push({
-    date: formatDate(d),
-    revenue: 0
+    const day = last7Days.find(d => d.date === orderDate);
+
+    if (day) {
+      day.revenue += order.totalAmount || 0;
+      day.orders += 1;
+    }
   });
-}
 
-orders.forEach(order => {
-  if (!order.orderDate) return;
+  const chartData = last7Days;
 
-  const orderDate = formatDate(order.orderDate);
 
-  const day = last7Days.find(d => d.date === orderDate);
-
-  if (day) {
-    day.revenue += order.totalAmount || 0;
-  }
-});
-
-const chartData = last7Days;
-
-const statusData = [
-  {
-    name: "Delivered",
-    value: orders.reduce((count, order) => {
-      return count + (order.products || []).filter(
-        p => p?.status?.toLowerCase() === "delivered"
-      ).length;
-    }, 0)
-  },
-  {
-    name: "Placed",
-    value: orders.reduce((count, order) => {
-      return count +(order.products || []).filter(
-        p => p?.status?.toLowerCase() === "placed"
-      ).length;
-    }, 0)
-  },
-  {
-    name: "Cancelled",
-    value: orders.reduce((count, order) => {
-      return count + (order.products || []).filter(
-        p => p?.status?.toLowerCase() === "cancelled"
-      ).length;
-    }, 0)
-  }
-];
+  const statusData = [
+    {
+      name: "Delivered",
+      value: orders.reduce((count, order) => {
+        return count + (order.products || []).filter(
+          p => p?.status?.toLowerCase() === "delivered"
+        ).length;
+      }, 0)
+    },
+    {
+      name: "Placed",
+      value: orders.reduce((count, order) => {
+        return count + (order.products || []).filter(
+          p => p?.status?.toLowerCase() === "placed"
+        ).length;
+      }, 0)
+    },
+    {
+      name: "Cancelled",
+      value: orders.reduce((count, order) => {
+        return count + (order.products || []).filter(
+          p => p?.status?.toLowerCase() === "cancelled"
+        ).length;
+      }, 0)
+    }
+  ];
 
   const COLORS = ["#00C49F", "#FFBB28", "#FF4C4C"];
-const monthlyMap = {};
-
-allOrders.forEach(order => {
-  const rawDate = order.orderDate || order.date;
-  if (!rawDate) return;
-
-  const date = new Date(rawDate);
-
-  const key = `${date.getFullYear()}-${date.getMonth()}`; 
-  const monthLabel = date.toLocaleString("default", {
-    month: "short",
-    year: "numeric"
-  });
-
-  if (!monthlyMap[key]) {
-    monthlyMap[key] = {
-      month: monthLabel,
-      orders: 0,
-      sortDate: new Date(date.getFullYear(), date.getMonth(), 1)
-    };
-  }
-
-  monthlyMap[key].orders += 1;
-});
-
-const monthlyData = Object.values(monthlyMap).sort(
-  (a, b) => a.sortDate - b.sortDate
-);
-
-
-
-
-  /*
-const sortedMonthly = groupedMonthly.sort(
-  (a, b) => new Date(a.month) - new Date(b.month)
-);*/
-
- 
- /*const orderTrendData = orders.slice(0, 7).map(order => ({
-  date: order?.orderDate
-    ? new Date(order.orderDate).toLocaleDateString()
-    : "N/A",
-  orders: 1
-}));*/
-
- const ordersTrend = last7Days.map(d => ({
-  date: d.date,
-  orders: 0
-}));
-
-orders.forEach(order => {
-  if (!order.orderDate) return;
-
-  const orderDate = formatDate(order.orderDate);
-
-  const day = ordersTrend.find(d => d.date === orderDate);
-
-  if (day) {
-    day.orders += 1;
-  }
-});
-
 
   return (
-   <div className="dashboard-wrapper">
-      
+    <div className="dashboard-wrapper">
+
       <div className="sidebar">
         <p className="active">Dashboard</p>
         <p onClick={() => navigate("/add")}>Add Product</p>
         <p onClick={() => navigate("/manage")}>Manage Product</p>
         <p onClick={() => navigate("/admin/orders")}>Manage Orders</p>
         <p onClick={() => navigate("/view-users")}>Manage Users</p>
-         <p onClick={() => navigate("/admin-login")}>Logout</p>
-         
+        <p onClick={() => navigate("/admin-login")}>Logout</p>
       </div>
 
-     
       <div className="dashboard-main">
 
-        <h2 style={{color:" #007bff"}}>Welcome to Admin Dashboard</h2>
+        <h2 style={{ color: "#007bff" }}>Welcome to Admin Dashboard</h2>
 
-   
         <div className="stats-cards">
           <div className="card">
-            <p style={{color:" #007bff"}}>{stats?.totalProducts || 0}</p>
+            <p style={{ color: "#007bff" }}>{stats?.totalProducts || 0}</p>
             <span>Total Products</span>
           </div>
           <div className="card">
-            <p style={{color:" #007bff"}}>{stats?.totalOrders || 0}</p>
+            <p style={{ color: "#007bff" }}>{stats?.totalOrders || 0}</p>
             <span>Total Orders</span>
           </div>
           <div className="card">
-            <p style={{color:" #007bff"}}>{stats?.totalUsers || 0}</p>
+            <p style={{ color: "#007bff" }}>{stats?.totalUsers || 0}</p>
             <span>Users</span>
           </div>
           <div className="card">
-            <p style={{color:" #007bff"}}>Rs {stats?.totalRevenue || 0}</p>
+            <p style={{ color: "#007bff" }}>Rs {stats?.totalRevenue || 0}</p>
             <span>Revenue</span>
           </div>
         </div>
@@ -233,16 +153,15 @@ orders.forEach(order => {
        
         <div className="bottom-section">
 
+ 
           <div className="chart-box">
             <h3>Revenue Trend</h3>
             <ResponsiveContainer width="100%" height={250}>
-             <LineChart data={chartData}>
-             <XAxis dataKey="date" />
-
-<Tooltip />
+              <LineChart data={chartData}>
+                <XAxis dataKey="date" />
+                <Tooltip />
                 <YAxis />
-               
-               <Line type="monotone" dataKey="revenue" stroke="#007bff" />
+                <Line type="monotone" dataKey="revenue" stroke="#007bff" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -261,42 +180,20 @@ orders.forEach(order => {
 
         </div>
 
-        
-       <div className="chart-box">
-  <h3>Monthly Orders</h3>
-
-  <ResponsiveContainer width="100%" height={250}>
-    <BarChart data={monthlyData}>
-     <XAxis dataKey="month" />
-      <YAxis />
-      <Tooltip />
-<Bar dataKey="orders" fill="#007bff" name="Orders" />
-      
-    </BarChart>
-  </ResponsiveContainer>
-</div>
-
        
         <div className="chart-box">
           <h3>Orders Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
-           <LineChart data={ordersTrend}>
-             <XAxis
-  dataKey="date"
-  
-/>
+            <BarChart data={chartData}>
+              <XAxis dataKey="date" />
               <YAxis />
-             <Tooltip
-  labelFormatter={(label) =>
-    new Date(label).toLocaleDateString()
-  }
-/>
-             <Line type="monotone" dataKey="orders" stroke="#28a745" />
-            </LineChart>
+              <Tooltip />
+              <Bar dataKey="orders" fill="#28a745" name="Orders" />
+            </BarChart>
           </ResponsiveContainer>
         </div>
 
-       
+      
         <div className="orders-box">
           <h3>Recent Orders</h3>
 
@@ -304,18 +201,17 @@ orders.forEach(order => {
 
           {orders.map(order => (
             <div key={order._id} className="order-row">
-             <span>
-  {order && order._id ? order._id.slice(-6) : "N/A"}
-</span>
+              <span>
+                {order && order._id ? order._id.slice(-6) : "N/A"}
+              </span>
               <span>Rs {order?.totalAmount || 0}</span>
-             <span>{getOrderStatus(order)}</span>
+              <span>{getOrderStatus(order)}</span>
             </div>
           ))}
         </div>
 
       </div>
     </div>
-    
   );
 }
 

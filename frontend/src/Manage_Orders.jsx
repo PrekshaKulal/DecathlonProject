@@ -97,13 +97,9 @@ const cancelItem = async (orderId, productId) => {
               {p.status}
             </p>
 
-            <button
-              className="cancel-btn"
-             onClick={() => cancelItem(ord._id, p.productId._id)}
-              disabled={p.status === "Cancelled"}
-            >
-              Cancel Order
-            </button>
+            <button className="cancel-btn" onClick={() => cancelItem(ord._id, p.productId._id)} disabled={p.status === "Cancelled" || p.status === "Delivered"}>
+  Cancel Order
+</button>
           </div>
         </div>
 
