@@ -799,7 +799,7 @@ app.put("/admin/orders/:id", async (req, res) => {
     await order.save();
     const user = await UserModel.findById(order.userId);
     await sendOrderEmail(user.email, status, order);
-    res.json({ success: true, message: "Status updated + email sent" });
+    res.json({ success: true, message: "Status updated and email is sent" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Update failed" });
