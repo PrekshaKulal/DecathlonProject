@@ -228,7 +228,7 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-      
+     { /*
         <div className="orders-box">
           <h3>Recent Orders</h3>
 
@@ -243,7 +243,7 @@ function Dashboard() {
               <span>{getOrderStatus(order)}</span>
             </div>
           ))}
-        </div>
+        </div>*/}
 
       </div>
     </div>
