@@ -81,10 +81,10 @@ await axios.post(
 
   <div className="product-image-container">
     <img src={product.file} alt={product.productName} className="product-image"/>
-  
+  <br/>
 </div>
   <div className="product-content">
-    <br/><br/>
+   
     <h2 className="product-name" style={{color:"#222"}}>{product.productName}</h2>
     <h3 className="price">Rs {product.productPrice}</h3>
     <p className="description">{product.productDescription}</p>
