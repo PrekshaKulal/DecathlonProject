@@ -89,7 +89,7 @@ await axios.post(
     <h3 className="price">Rs {product.productPrice}</h3>
     <p className="description">{product.productDescription}</p>
   </div>
-  <button className="add-to-cart-btn" onClick={(addToCart)} > Add to Cart </button>
+  <button className="add-to-cart-btn" onClick={(addToCart)} > Add to Cart </button><br/><br/><br/>
 </div>
 
     </>
