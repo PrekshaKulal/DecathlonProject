@@ -64,15 +64,16 @@ table{
     margin-top:10px;
     cursor:pointer;
     color:white;
-    background:green
+    background:green;
 }
 input{
     background-color: white;
     color:black;
     width:100px;
 }
+
 .place-order{
-   
+   align-items: flex-end;
     margin-top:20px;
     cursor:pointer;
     color:white;
