@@ -148,11 +148,7 @@ html: `
   <p>Your order <b>${order._id}</b> status is now:</p>
   <h3>${status}</h3>
 
-  ${
-    status === "Cancelled"
-      ? `<p>Amount will be refunded</p>`
-      : ""
-  }
+  ${status === "Cancelled" ? `<p>Amount will be refunded</p>`: ""}
 
   <p>Updated Total Amount: ₹${order.totalAmount}</p>
   <p>Invoice attached.</p>
@@ -342,16 +338,8 @@ const generateInvoicePDF = async (order) => {
         .text(order.addressDetails.Phone, 40, 300);
 
       doc
-        .text(
-          `${order.addressDetails.HouseNo}, ${order.addressDetails.Street}`,
-          260,
-          268
-        )
-        .text(
-          `${order.addressDetails.City}, ${order.addressDetails.State}`,
-          260,
-          284
-        )
+        .text(`${order.addressDetails.HouseNo}, ${order.addressDetails.Street}`, 260, 268 )
+        .text( `${order.addressDetails.City}, ${order.addressDetails.State}`, 260, 284 )
         .text(`${order.addressDetails.Pincode}`, 260, 300);
       let rows = [];
       let subtotal = 0;
