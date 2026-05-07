@@ -60,7 +60,7 @@ function Profile() {
           </div>
 
           <div>
-            <h2>Hello 👋</h2>
+            <h2>Hello {addr.Name}</h2>
             <p>Welcome back to your account</p>
           </div>
         </div>
