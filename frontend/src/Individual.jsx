@@ -84,7 +84,7 @@ await axios.post(
   
 </div>
   <div className="product-content">
-    <h2 className="product-name" style={{color: "#222"}}>{product.productName}</h2>
+    <h2 className="product-name" >{product.productName}</h2>
     <h3 className="price">Rs {product.productPrice}</h3>
     <p className="description">{product.productDescription}</p>
   </div>
