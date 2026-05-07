@@ -81,13 +81,7 @@ function AdminOrders() {
           
           <p>Qty: {p.quantity}</p>
           <p className="status"> Status: {p.status || "Placed"}</p>
-          <select className="status-select"  value={p.status || "Placed"}onChange={(e) =>
-  updateItemStatus(
-    order._id,
-    p.productId._id || p.productId,
-    e.target.value
-  )
-} >
+          <select className="status-select"  value={p.status || "Placed"}onChange={(e) => updateItemStatus(order._id,p.productId._id || p.productId,e.target.value)} >
             <option value="Placed">Placed</option>
             <option value="Packed">Packed</option>
             <option value="Shipped">Shipped</option>
