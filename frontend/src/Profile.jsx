@@ -59,10 +59,10 @@ function Profile() {
             {user.email ? user.email.charAt(0).toUpperCase() : "U"}
           </div>
 
-          <div>
-            <h2>Hello {addr.Name}</h2>
-            <p>Welcome back to your account</p>
-          </div>
+         <div>
+  <h2>Hello {user.addresses?.[0]?.Name || "User"}</h2>
+  <p>Welcome back to your account</p>
+</div>
         </div>
 
         <div className="profile-section">
